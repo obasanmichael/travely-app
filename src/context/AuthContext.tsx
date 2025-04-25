@@ -7,7 +7,8 @@ import {
   onAuthStateChanged,
   User,
 } from "firebase/auth";
-import { auth } from "../firebase/firebase";
+import { auth, db } from "../firebase/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 // Define the shape of your auth context
 interface AuthContextType {
@@ -36,8 +37,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Keep track of the currently signed-in user
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        setUser(currentUser);
+        
+        if (currentUser) {
+      const userRef = doc(db, "users", currentUser.uid);
+      const docSnap = await getDoc(userRef);
+
+      // If user doesn't exist in Firestore yet, create it
+      if (!docSnap.exists()) {
+        await setDoc(userRef, {
+          uid: currentUser.uid,
+          email: currentUser.email,
+          createdAt: new Date(),
+        });
+      }
+    }
     });
 
     return () => unsubscribe();
@@ -45,7 +60,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Signup method
   const signup = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const user = userCredential.user;
+
+    await setDoc(doc(db, "users", user.uid), {
+      uid: user.uid,
+      email: user.email,
+      // Add any other default user information
+      createdAt: new Date(),
+    });
   };
 
   // Login method
@@ -57,6 +84,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const logout = async () => {
     await signOut(auth);
   };
+    
+    
 
   return (
     <AuthContext.Provider value={{ user, signup, login, logout }}>

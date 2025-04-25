@@ -24,14 +24,16 @@ const Signup = () => {
   return (
     <div className="w-full h-screen flex justify-center items-center bg-[#242424]">
       <div className="max-w-md mx-auto mt-10 p-6 shadow-lg rounded-lg border border-gray-200">
-        <h2 className="text-2xl font-semibold mb-4 text-white">Create Account</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-white">
+          Create Account
+        </h2>
         {error && <p className="text-red-500 mb-3">{error}</p>}
         <form onSubmit={handleSignup} className="space-y-4">
           <input
             type="email"
             placeholder="Email"
             value={email}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded bg-gray-200"
             onChange={(e) => setEmail(e.target.value)}
             required
           />
@@ -39,7 +41,7 @@ const Signup = () => {
             type="password"
             placeholder="Password"
             value={password}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded bg-gray-200"
             onChange={(e) => setPassword(e.target.value)}
             required
           />
