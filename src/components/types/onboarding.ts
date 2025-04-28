@@ -7,3 +7,4 @@ export interface OnboardingData {
   budget: string;
   travelerCount: string;
 }
+

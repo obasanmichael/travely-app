@@ -8,28 +8,24 @@ interface Props {
   totalSteps: number;
 }
 
-const Step3_DestinationType: React.FC<Props> = ({
+const Step8_ClimatePreference: React.FC<Props> = ({
   value,
   onChange,
   step,
   totalSteps,
 }) => {
   const options = [
-    "Beach",
-    "Mountain",
-    "City",
-    "Countryside",
-    "Historical Sites",
-    "Island",
-    "Desert",
-    "Lakeside",
+    "Warm & Sunny",
+    "Cool & Breezy",
+    "Cold & Snowy",
+    "No Preference",
   ];
 
   return (
     <QuestionWrapper
       step={step}
       totalSteps={totalSteps}
-      title="What type of destination do you prefer?"
+      title="What’s your preferred climate for this trip?"
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
         {options.map((option) => (
@@ -50,4 +46,4 @@ const Step3_DestinationType: React.FC<Props> = ({
   );
 };
 
-export default Step3_DestinationType;
+export default Step8_ClimatePreference;

@@ -3,11 +3,12 @@ import React from "react";
 import QuestionWrapper from "./QuestionWrapper";
 
 interface Props {
-  value: string;
-  onChange: (val: string) => void;
+  value: string | number | string[];
+  onChange: (val: string | number | string[]) => void;
   step: number;
   totalSteps: number;
 }
+
 
 const Step1_TravelGoal: React.FC<Props> = ({
   value,

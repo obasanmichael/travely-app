@@ -31,7 +31,7 @@ const Login = () => {
             type="email"
             placeholder="Email"
             value={email}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded bg-gray-200"
             onChange={(e) => setEmail(e.target.value)}
             required
           />
@@ -39,7 +39,7 @@ const Login = () => {
             type="password"
             placeholder="Password"
             value={password}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded bg-gray-200"
             onChange={(e) => setPassword(e.target.value)}
             required
           />
