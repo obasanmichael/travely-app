@@ -1,3 +1,4 @@
+// src/components/OnboardingForm.tsx
 import React, { useState } from "react";
 import Step1_TravelGoal from "./Step1_TravelGoal";
 import Step2_Activities from "./Step2_Activities";
@@ -6,12 +7,13 @@ import Step4_Companions from "./Step4_Companions";
 import Step5_Duration from "./Step5_Duration";
 import Step6_Budget from "./Step6_Budget";
 import Step7_TravelerCount from "./Step7_TravelerCount";
-import Step8_ClimatePreference from "./step8_ClimatePreference";
+import Step8_ClimatePreference from "./Step8_ClimatePreference";
 import { addDoc, collection, updateDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import firebase from "firebase/compat/app";
+import { getRecommendations } from "../../utils/api";
 
 // Define the step configurations with the corresponding keys
 const stepConfigs = [
@@ -51,7 +53,7 @@ const OnboardingForm: React.FC = () => {
 
   const currentKey = stepConfigs[currentStep].key as keyof FormData;
   const StepComponent = stepConfigs[currentStep].component as any;
-  const totalSteps = stepConfigs.length; // Total number of steps
+  const totalSteps = stepConfigs.length;
   const navigate = useNavigate();
 
   const handleChange = (val: string | string[] | number) => {
@@ -68,18 +70,30 @@ const OnboardingForm: React.FC = () => {
       await addDoc(collection(db, "userPreferences"), formData);
       toast.success("Preferences saved successfully! 🎉");
 
+      // Fetch recommendations from the backend
+      const recommendations = await getRecommendations(
+        parseFloat(formData.budget), // Budget as a number
+        8, // Safety Rating (example value)
+        "Moderate", // Accessibility (example value)
+        formData.destinationType,
+        formData.climate,
+        formData.activities.join(", "), // Convert array to string
+        formData.duration
+      );
+
       // After saving, update the user document to mark onboarding as completed
       const user = firebase.auth().currentUser;
       if (user) {
         await updateDoc(doc(db, "users", user.uid), {
           hasCompletedOnboarding: true,
+          recommendations, // Save recommendations for display on dashboard
         });
       }
 
-      // Redirect to dashboard after saving data and marking onboarding as completed
+      // Redirect to dashboard after saving data
       setTimeout(() => {
-        navigate("/dashboard");
-      }, 1500); // wait 1.5 seconds before redirecting
+        navigate("/dashboard", { state: { recommendations } });
+      }, 1500);
     } catch (error) {
       console.error("Error saving form data:", error);
       toast.error("Something went wrong. Please try again.");
@@ -95,7 +109,7 @@ const OnboardingForm: React.FC = () => {
 
         {/* Pass correct props to StepComponent */}
         <StepComponent
-          value={formData[currentKey as keyof FormData]} // Tell TypeScript: currentKey is one of FormData's keys
+          value={formData[currentKey as keyof FormData]}
           onChange={handleChange}
           step={currentStep + 1}
           totalSteps={totalSteps}
@@ -121,7 +135,7 @@ const OnboardingForm: React.FC = () => {
               onClick={handleSave}
               className="px-4 py-2 rounded bg-green-500 text-white"
             >
-              Save
+              Save & Get Recommendations
             </button>
           )}
         </div>
