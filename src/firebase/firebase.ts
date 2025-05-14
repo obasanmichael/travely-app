@@ -1,10 +1,10 @@
 // src/firebase.js
 
 // Import the core Firebase functionality and individual services
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
+// import { initializeApp } from "firebase/app";
+// import { getAuth } from "firebase/auth";
+// import { getFirestore } from "firebase/firestore";
+// import { getStorage } from "firebase/storage";
 
 // Your Firebase configuration
 const firebaseConfig = {
@@ -17,9 +17,92 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Firebase configuration and functions
+import { initializeApp } from 'firebase/app';
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  updateDoc, 
+  getDoc, 
+  doc, 
+  serverTimestamp,
+  Timestamp,
+  DocumentReference 
+} from 'firebase/firestore';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
+import { QuizFormData, UserPreferences } from '../components/types/types';
 
-// Export services to use throughout your app
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// Check authentication state
+export const getCurrentUser = (): Promise<User | null> => {
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+};
+
+// Save user preferences after quiz
+export const saveUserPreferences = async (quizData: QuizFormData): Promise<DocumentReference | null> => {
+  try {
+    const user = await getCurrentUser();
+    
+    if (!user) {
+      console.error('No user logged in');
+      return null;
+    }
+    
+    const userPreferences: Omit<UserPreferences, 'createdAt' | 'lastUpdated'> = {
+      ...quizData,
+      userId: user.uid,
+    };
+    
+    // Add to Firestore with server timestamps
+    const docRef = await addDoc(collection(db, 'userPreferences'), {
+      ...userPreferences,
+      createdAt: serverTimestamp(),
+      lastUpdated: serverTimestamp()
+    });
+    
+    console.log('Preferences saved with ID:', docRef.id);
+    return docRef;
+  } catch (error) {
+    console.error('Error saving preferences:', error);
+    return null;
+  }
+};
+
+// Get user's latest preferences
+export const getUserPreferences = async (): Promise<UserPreferences | null> => {
+  try {
+    const user = await getCurrentUser();
+    
+    if (!user) {
+      console.error('No user logged in');
+      return null;
+    }
+    
+    // For simplicity, we're just getting the latest preferences
+    // In a real app, you'd query by userId and sort by timestamp
+    const prefsSnapshot = await getDoc(doc(db, 'userPreferences', user.uid));
+    
+    if (!prefsSnapshot.exists()) {
+      return null;
+    }
+    
+    const data = prefsSnapshot.data() as UserPreferences;
+    return data;
+  } catch (error) {
+    console.error('Error fetching preferences:', error);
+    return null;
+  }
+};
+
+export { db, auth };
