@@ -446,8 +446,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { RecommendationResponse } from "../types/types";
-import RecommendationList from "./RecommendationList";
+// import RecommendationList from "./RecommendationList";
 import { getCurrentUser } from "../../firebase/firebase";
+import RecommendationsContainer from "./RecommendationsContainer";
 
 const Dashboard: React.FC = () => {
   const [recommendations, setRecommendations] =
@@ -515,11 +516,12 @@ const Dashboard: React.FC = () => {
       </div>
 
       {recommendations ? (
-        <RecommendationList
-          recommendations={recommendations.recommendations}
-          budgetCategory={recommendations.user_budget_category}
-          durationCategory={recommendations.user_duration_category}
-        />
+      <RecommendationsContainer/>
+        // <RecommendationList
+        //   recommendations={recommendations.recommendations}
+        //   budgetCategory={recommendations.user_budget_category}
+        //   durationCategory={recommendations.user_duration_category}
+        // />
       ) : (
         <div className="bg-white shadow-sm rounded-lg p-6 mb-8">
           <div className="text-center py-16">
