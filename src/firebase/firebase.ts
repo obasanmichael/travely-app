@@ -23,11 +23,9 @@ import {
   getFirestore, 
   collection, 
   addDoc, 
-  updateDoc, 
   getDoc, 
   doc, 
   serverTimestamp,
-  Timestamp,
   DocumentReference 
 } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
