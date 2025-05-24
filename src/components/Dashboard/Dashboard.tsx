@@ -68,7 +68,7 @@ const Dashboard: React.FC = () => {
               to="/quiz"
               className="inline-block bg-blue-600 text-white rounded-lg px-5 py-2 text-sm font-medium hover:bg-blue-700"
             >
-              {recommendations ? "Retake Quiz" : "Take Travel Quiz"}
+              {recommendations ? "Retake questions" : "Answer Travel Questions"}
             </Link>
           </div>
         </div>
@@ -90,7 +90,7 @@ const Dashboard: React.FC = () => {
               to="/quiz"
               className="inline-block bg-blue-600 text-white rounded-lg px-5 py-3 text-sm font-medium hover:bg-blue-700"
             >
-              Start Quiz
+              Start Form Filling
             </Link>
           </div>
         </div>

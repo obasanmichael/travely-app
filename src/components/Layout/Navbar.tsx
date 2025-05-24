@@ -37,7 +37,7 @@ const Navbar: React.FC = () => {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="text-xl font-bold">
-                TravelyNG
+                Travely
               </Link>
             </div>
           </div>
@@ -63,7 +63,7 @@ const Navbar: React.FC = () => {
                     : "text-gray-300 hover:bg-blue-700 hover:text-white"
                 }`}
               >
-                Quiz
+                Questions
               </Link>
             </div>
           </div>

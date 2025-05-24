@@ -8,13 +8,13 @@ interface RecommendationProps {
     destination_type: string;
     activities: string;
     climate: string;
-    least_cost_per_day: number; // Updated field name
+    avg_cost_per_day: number;
     best_season: string;
     accommodation_type: string;
     nearby_hotel: string;
     hotel_price_range: string;
-    feeding_cost_range: string; // Added field
-    other_necessities_range: string; // Added field
+    feeding_cost_range: string;
+    necessities_range: string;
     budget_category: string;
     score: number;
   };
@@ -31,13 +31,13 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
     destination_type,
     activities,
     climate,
-    least_cost_per_day, // Updated field name
+    avg_cost_per_day,
     best_season,
     accommodation_type,
     nearby_hotel,
     hotel_price_range,
-    feeding_cost_range, // Added field
-    other_necessities_range, // Added field
+    feeding_cost_range,
+    necessities_range,
     budget_category,
     score,
   } = recommendation;
@@ -145,7 +145,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
               ></path>
             </svg>
             <span className="text-gray-700">
-              ₦{formatCost(least_cost_per_day)}/day
+              ₦{formatCost(avg_cost_per_day)}/day
             </span>
           </div>
           <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
@@ -171,32 +171,10 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
         </div>
       </div>
 
-      {/* Cost Breakdown */}
-      <div className="p-4 border-b">
+      {/* Cost Breakdown Section */}
+      <div className="p-4 border-b bg-gray-50">
         <h4 className="font-semibold text-gray-800 mb-3">Cost Breakdown</h4>
-        <div className="grid grid-cols-1 gap-2 text-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <svg
-                className="w-4 h-4 text-gray-500 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                ></path>
-              </svg>
-              <span className="text-gray-600">Accommodation:</span>
-            </div>
-            <span className="text-gray-700 font-medium">
-              {hotel_price_range}
-            </span>
-          </div>
+        <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <svg
@@ -213,9 +191,9 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
                   d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                 ></path>
               </svg>
-              <span className="text-gray-600">Feeding:</span>
+              <span className="text-sm text-gray-600">Feeding Cost:</span>
             </div>
-            <span className="text-gray-700 font-medium">
+            <span className="text-sm font-medium text-gray-800">
               {feeding_cost_range}
             </span>
           </div>
@@ -232,13 +210,13 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
                 ></path>
               </svg>
-              <span className="text-gray-600">Other Expenses:</span>
+              <span className="text-sm text-gray-600">Other Necessities:</span>
             </div>
-            <span className="text-gray-700 font-medium">
-              {other_necessities_range}
+            <span className="text-sm font-medium text-gray-800">
+              {necessities_range}
             </span>
           </div>
         </div>
@@ -264,6 +242,25 @@ const RecommendationCard: React.FC<RecommendationProps> = ({
           </svg>
           <span className="text-gray-700">
             {nearby_hotel} ({accommodation_type})
+          </span>
+        </div>
+        <div className="flex items-center">
+          <svg
+            className="w-5 h-5 text-gray-500 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2-2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+            ></path>
+          </svg>
+          <span className="text-gray-700">
+            Price Range: {hotel_price_range}
           </span>
         </div>
       </div>

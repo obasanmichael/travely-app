@@ -7,7 +7,7 @@ const Footer: React.FC = () => {
         <div className="md:flex md:items-center md:justify-between">
           <div className="mt-8 md:mt-0 md:order-1">
             <p className="text-center text-base text-gray-500">
-              &copy; {new Date().getFullYear()} TravelyNG. All rights reserved.
+              &copy; {new Date().getFullYear()} Travely. All rights reserved.
             </p>
           </div>
           <div className="flex justify-center md:order-2">
