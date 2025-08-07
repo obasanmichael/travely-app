@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -9,7 +9,7 @@ import Dashboard from "./components/Dashboard/Dashboard";
 import QuizForm from "./components/Quiz/QuizForm";
 import Navbar from "./components/Layout/Navbar";
 import Footer from "./components/Layout/Footer";
-import { getCurrentUser } from "./firebase/firebase";
+// import { getCurrentUser } from "./firebase/firebase";
 // import { checkApiHealth } from "./utils/api";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
