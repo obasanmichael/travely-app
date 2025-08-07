@@ -6,7 +6,7 @@ import HowItWorks from "../components/home/HowItWorks";
 import PopularDestinations from "../components/home/PopularDestinations";
 const Home: React.FC = () => {
   return (
-    <div className="pt-16">
+    <div>
       <Hero />
       <HowItWorks />
       <PopularDestinations />

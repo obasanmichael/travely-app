@@ -14,27 +14,31 @@ import { getCurrentUser } from "./firebase/firebase";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
+import Auth from "./pages/Auth";
 
 const App: React.FC = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    // useEffect(() => {
-    //   const checkAuth = async () => {
-    //     const user = await getCurrentUser();
-    //     setIsAuthenticated(!user);
-    //   };
-  
-    //   checkAuth();
-    // }, []);
-  
-    // if (isAuthenticated === null) {
-    //   // Still checking
-    //   return (
-    //     <div className="flex justify-center items-center h-64">
-    //       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-    //     </div>
-    //   );
-    // }
-  
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     const user = await getCurrentUser();
+  //     setIsAuthenticated(!user);
+  //   };
+
+  //   checkAuth();
+  // }, []);
+
+  // if (isAuthenticated === null) {
+  //   // Still checking
+  //   return (
+  //     <div className="flex justify-center items-center h-64">
+  //       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+  //     </div>
+  //   );
+  // }
+
   // const [apiStatus, setApiStatus] = useState<boolean | null>(null);
 
   // useEffect(() => {
@@ -65,25 +69,26 @@ const App: React.FC = () => {
           </div>
         )} */}
 
-        <main className="flex-grow">
+        <main className="flex-grow pt-20">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route
-              path="/dashboard"
+              path="/auth"
               element={
-                
-                  <Dashboard />
-                
+                isAuthenticated ? (
+                  <Navigate to="/dashboard" />
+                ) : (
+                  <Auth onLogin={handleLogin} />
+                )
               }
             />
             <Route
-              path="/quiz"
+              path="/dashboard"
               element={
-                
-                  <QuizForm />
-                
+                isAuthenticated ? <Dashboard /> : <Navigate to="/auth" />
               }
             />
+            <Route path="/quiz" element={<QuizForm />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
           </Routes>
