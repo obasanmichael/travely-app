@@ -2,6 +2,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod"
 import { useForm } from "react-hook-form"
+import toast from "react-hot-toast";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import {
   EyeIcon,
@@ -39,12 +40,18 @@ const SignupForm = () => {
         displayName: data.fullName
       })
     }
-
+    toast.success("Signup successful! Redirecting...");
     navigate('/dashboard')
     }
    
     catch(error:any) {
-      console.log("Error signing up:", error.message)
+     if (error.code === "auth/email-already-in-use") {
+       toast.error("This email is already registered. Please use another email.");
+     } else if (error.code === "auth/invalid-email") {
+       toast.error("Invalid email address.");
+     } else {
+       toast.error("Something went wrong. Please try again.");
+     }
     }
     finally {
       setIsLoading(false)

@@ -18,14 +18,12 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Get user info
         const user = await getCurrentUser();
         if (user) {
           setUserName(
             user.displayName || user.email?.split("@")[0] || "Traveler"
           );
         }
-
         // Get recommendations from localStorage
         const savedRecommendations = localStorage.getItem(
           "travelRecommendations"

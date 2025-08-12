@@ -4,9 +4,10 @@ import { MenuIcon, X as CloseIcon, MapPinIcon } from "lucide-react";
 
 interface NavbarProps {
   isAuthenticated: boolean;
+  onLogout: () => void
 }
 
-const Navbar: React.FC<NavbarProps> = ({ isAuthenticated }) => {
+const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("");
@@ -151,12 +152,12 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated }) => {
             </div>
             <div className="ml-4">
               {isAuthenticated ? (
-                <Link
-                  to="/dashboard"
-                  className="px-5 py-2 rounded-full bg-blue-500 text-white font-medium hover:bg-blue-600 transition-colors"
+                <button
+                  onClick={onLogout}
+                  className="px-5 py-2 rounded-lg bg-red-300 text-white font-medium hover:bg-red-500 transition-colors"
                 >
-                  Dashboard
-                </Link>
+                  Logout
+                </button>
               ) : (
                 <Link
                   to="/auth"
@@ -183,7 +184,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated }) => {
       {/* Mobile Navigation */}
       {isOpen && (
         <div className="md:hidden absolute top-0 left-0 w-full h-screen bg-white z-0 pt-24">
-          <div className="container mx-auto px-4 py-3 space-y-6">
+          <div className="container mx-auto text-center flex-col px-4 py-3 space-y-6">
             {navLinks.map((link) => (
               <a
                 key={link.title}
@@ -196,15 +197,14 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated }) => {
                 {link.title}
               </a>
             ))}
-            <div className="pt-4 border-t border-gray-100">
+            <div className="pt-4 border-t flex justify-center border-gray-100">
               {isAuthenticated ? (
-                <Link
-                  to="/dashboard"
-                  className="block py-3 px-5 rounded-full bg-blue-500 text-white text-center font-medium"
-                  onClick={() => setIsOpen(false)}
+                <button
+                  className="block py-2 px-5 rounded-lg bg-red-500 text-white text-center font-medium"
+                  onClick={onLogout}
                 >
-                  Dashboard
-                </Link>
+                  Logout
+                </button>
               ) : (
                 <Link
                   to="/auth"

@@ -4,7 +4,7 @@ import SignupForm from "../components/auth/SignupForm";
 interface AuthProps {
   onLogin: () => void;
 }
-const Auth: React.FC<AuthProps> = ({ onLogin }) => {
+const Auth: React.FC<AuthProps> = ({ }) => {
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex items-center">
@@ -93,9 +93,9 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
             {/* Forms */}
             <div className="mt-6">
               {activeTab === "login" ? (
-                <LoginForm onLogin={onLogin} />
+                <LoginForm />
               ) : (
-                <SignupForm onSignup={onLogin} />
+                <SignupForm />
               )}
             </div>
           </div>

@@ -1,40 +1,52 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-interface LoginFormProps {
-  onLogin: () => void;
-}
+import { useForm } from "react-hook-form";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase/firebase";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
+const loginSchema = z.object({
+  email: z.string().email("Invalid Email Address"),
+  password: z.string(),
+});
 
+type LoginFormValues = z.infer<typeof loginSchema>;
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const LoginForm = () => {
+  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+
+  const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
-    setError("");
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      if (email && password) {
-        onLogin();
+    try {
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+      toast.success("Signin successful! Redirecting...");
+      navigate("/dashboard");
+    } catch (error: any) {
+      if (error.code === "auth/invalid-email") {
+        toast.error("Invalid email address.");
+      } else if (error.code === "auth/user-not-found") {
+        toast.error("No account found with this email.");
+      } else if (error.code === "auth/wrong-password") {
+        toast.error("Incorrect password.");
       } else {
-        setError("Please enter both email and password");
+        toast.error("Something went wrong. Please try again.");
       }
-    }, 1000);
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
-          {error}
-        </div>
-      )}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-2">
         <label
           htmlFor="email"
@@ -46,12 +58,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
           <input
             id="email"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            {...register("email")}
             className="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
             placeholder="name@example.com"
             required
           />
+          {errors.email && (
+            <p className="text-red-500">{errors.email.message}</p>
+          )}
         </div>
       </div>
       <div className="space-y-2">
@@ -65,8 +79,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
           <input
             id="password"
             type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            {...register("password")}
             className="block w-full px-4 py-3 pr-10 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
             placeholder="••••••••"
             required
@@ -83,6 +96,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
             )}
           </button>
         </div>
+        {errors.password && (
+          <p className="text-red-500">{errors.password.message}</p>
+        )}
       </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center">
