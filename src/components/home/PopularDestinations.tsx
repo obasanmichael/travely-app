@@ -8,7 +8,7 @@ const PopularDestinations: React.FC = () => {
       image:
         "https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1738&q=80",
       rating: 4.8,
-      priceRange: "$$ - $$$",
+      priceRange: "$150 - $250",
       tags: ["Beach", "Culture", "Relaxation"],
     },
     {
@@ -16,14 +16,14 @@ const PopularDestinations: React.FC = () => {
       image:
         "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1674&q=80",
       rating: 4.9,
-      priceRange: "$$$",
+      priceRange: "$300 - $400",
       tags: ["Scenic", "Romantic", "Luxury"],
     },
     {
       name: "Kyoto, Japan",
       image: japanPhoto,
       rating: 4.7,
-      priceRange: "$$ - $$$",
+      priceRange: "$200 - $300",
       tags: ["Cultural", "Historic", "Temples"],
     },
     {
@@ -31,7 +31,7 @@ const PopularDestinations: React.FC = () => {
       image:
         "https://images.unsplash.com/photo-1583422409516-2895a77efded?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80",
       rating: 4.6,
-      priceRange: "$$",
+      priceRange: "$350 - $450",
       tags: ["Architecture", "Nightlife", "Food"],
     },
   ];
@@ -50,7 +50,7 @@ const PopularDestinations: React.FC = () => {
           {destinations.map((destination, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:-translate-y-2"
+              className="bg-white rounded-xl overflow-hidden shadow-lg transform transition-transform duration-400 hover:-translate-y-3"
             >
               <div className="relative h-56">
                 <img

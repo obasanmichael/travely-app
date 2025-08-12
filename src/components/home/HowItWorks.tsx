@@ -36,7 +36,7 @@ const HowItWorks: React.FC = () => {
           {steps.map((step, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl p-8 text-center shadow-lg border border-gray-100 transform transition-transform duration-300 hover:-translate-y-2"
+              className="bg-white rounded-xl p-8 text-center shadow-lg border border-gray-100 transform transition-transform duration-400 hover:translate-y-3"
             >
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-6">
                 {step.icon}

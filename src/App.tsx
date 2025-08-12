@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import Dashboard from "./components/Dashboard/Dashboard";
 import QuizForm from "./components/Quiz/QuizForm";
@@ -16,86 +17,56 @@ import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 
+// Wrapper component to use useLocation hook
+const AppContent: React.FC<{
+  isAuthenticated: boolean;
+  onLogin: () => void;
+}> = ({ isAuthenticated, onLogin }) => {
+  const location = useLocation();
+  const isAuthPage = location.pathname === "/auth";
+
+  return (
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      {/* Conditionally render navbar - hide on auth page */}
+      {!isAuthPage && <Navbar isAuthenticated={isAuthenticated} />}
+
+      <main className={`flex-grow ${isAuthPage ? "" : "pt-20"}`}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route
+            path="/auth"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/dashboard" />
+              ) : (
+                <Auth onLogin={onLogin} />
+              )
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={isAuthenticated ? <Dashboard /> : <Navigate to="/auth" />}
+          />
+          <Route path="/quiz" element={<QuizForm />} />
+          {/* <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} /> */}
+        </Routes>
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const handleLogin = () => {
     setIsAuthenticated(true);
   };
-  // useEffect(() => {
-  //   const checkAuth = async () => {
-  //     const user = await getCurrentUser();
-  //     setIsAuthenticated(!user);
-  //   };
-
-  //   checkAuth();
-  // }, []);
-
-  // if (isAuthenticated === null) {
-  //   // Still checking
-  //   return (
-  //     <div className="flex justify-center items-center h-64">
-  //       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-  //     </div>
-  //   );
-  // }
-
-  // const [apiStatus, setApiStatus] = useState<boolean | null>(null);
-
-  // useEffect(() => {
-  //   const checkAPI = async () => {
-  //     const isHealthy = await checkApiHealth();
-  //     setApiStatus(isHealthy);
-  //   };
-
-  //   checkAPI();
-  // }, []);
-
+ 
   return (
     <Router>
-      <div className="flex flex-col min-h-screen bg-gray-50">
-        <Navbar isAuthenticated={isAuthenticated} />
-
-        {/* {apiStatus === false && (
-          <div
-            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-            role="alert"
-          >
-            <strong className="font-bold">API Error!</strong>
-            <span className="block sm:inline">
-              {" "}
-              Unable to connect to recommendation service. Please try again
-              later.
-            </span>
-          </div>
-        )} */}
-
-        <main className="flex-grow pt-20">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route
-              path="/auth"
-              element={
-                isAuthenticated ? (
-                  <Navigate to="/dashboard" />
-                ) : (
-                  <Auth onLogin={handleLogin} />
-                )
-              }
-            />
-            <Route
-              path="/dashboard"
-              element={
-                isAuthenticated ? <Dashboard /> : <Navigate to="/auth" />
-              }
-            />
-            <Route path="/quiz" element={<QuizForm />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-          </Routes>
-        </main>
-
-        <Footer />
-      </div>
+      <AppContent isAuthenticated={isAuthenticated} onLogin={handleLogin} />
     </Router>
   );
 };

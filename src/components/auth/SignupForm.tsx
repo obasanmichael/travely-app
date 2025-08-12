@@ -1,65 +1,58 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod"
+import { useForm } from "react-hook-form"
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import {
   EyeIcon,
   EyeOffIcon,
-  CheckCircleIcon,
-  XCircleIcon,
+
 } from "lucide-react";
-interface SignupFormProps {
-  onSignup: () => void;
-}
-const SignupForm: React.FC<SignupFormProps> = ({ onSignup }) => {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+import { auth } from "../../firebase/firebase";
+import { useNavigate } from "react-router-dom";
+// import { data } from "react-router-dom";
+
+
+const signupSchema = z.object({
+  fullName: z.string().min(2, {message: "Full Name shouldn't be less than 2 characters"}),
+  email: z.string().email('Invalid Email Address'),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {message: "Passwords don't match", path: ["confirmPassword"]});
+
+type SignupFormValues = z.infer<typeof signupSchema>;
+
+const SignupForm = () => {
+  const navigate = useNavigate()
+  const { register, handleSubmit, formState: { errors } } = useForm<SignupFormValues>({resolver: zodResolver(signupSchema)})
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [passwordStrength, setPasswordStrength] = useState(0);
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newPassword = e.target.value;
-    setPassword(newPassword);
-    // Simple password strength checker
-    let strength = 0;
-    if (newPassword.length >= 8) strength += 1;
-    if (/[A-Z]/.test(newPassword)) strength += 1;
-    if (/[0-9]/.test(newPassword)) strength += 1;
-    if (/[^A-Za-z0-9]/.test(newPassword)) strength += 1;
-    setPasswordStrength(strength);
-  };
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
-    // Basic validation
-    if (password !== confirmPassword) {
-      setIsLoading(false);
-      setError("Passwords don't match");
-      return;
+
+
+  const onSubmit = async (data: SignupFormValues) => {
+    setIsLoading(true)
+    try {
+       await createUserWithEmailAndPassword(auth, data.email, data.password)
+
+       if (auth.currentUser) {
+      await updateProfile(auth.currentUser, {
+        displayName: data.fullName
+      })
     }
-    if (passwordStrength < 3) {
-      setIsLoading(false);
-      setError("Please choose a stronger password");
-      return;
+
+    navigate('/dashboard')
     }
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      if (fullName && email && password) {
-        onSignup();
-      } else {
-        setError("Please fill in all fields");
-      }
-    }, 1000);
-  };
+   
+    catch(error:any) {
+      console.log("Error signing up:", error.message)
+    }
+    finally {
+      setIsLoading(false)
+    }
+  }
+  
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      {error && (
-        <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
-          {error}
-        </div>
-      )}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="space-y-2">
         <label
           htmlFor="fullName"
@@ -70,12 +63,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSignup }) => {
         <input
           id="fullName"
           type="text"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
+          {...register("fullName")}
           className="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="John Doe"
+          placeholder="Tolulope Michael"
           required
         />
+        {errors.fullName && (
+          <p className="text-red-500">{errors.fullName.message}</p>
+        )}
       </div>
       <div className="space-y-2">
         <label
@@ -87,12 +82,12 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSignup }) => {
         <input
           id="email"
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          {...register("email")}
           className="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="name@example.com"
+          placeholder="your_name@example.com"
           required
         />
+        {errors.email && <p className="text-red-500">{errors.email.message}</p>}
       </div>
       <div className="space-y-2">
         <label
@@ -105,8 +100,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSignup }) => {
           <input
             id="password"
             type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={handlePasswordChange}
+            {...register("password")}
+            // onChange={handlePasswordChange}
             className="block w-full px-4 py-3 pr-10 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
             placeholder="••••••••"
             required
@@ -123,58 +118,9 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSignup }) => {
             )}
           </button>
         </div>
-        {/* Password strength indicator */}
-        {password && (
-          <div className="mt-2">
-            <div className="flex space-x-1">
-              {[...Array(4)].map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-2 w-1/4 rounded-full ${
-                    i < passwordStrength ? "bg-blue-500" : "bg-gray-200"
-                  }`}
-                ></div>
-              ))}
-            </div>
-            <p className="text-xs mt-1 text-gray-600">
-              {passwordStrength === 0 && "Very weak"}
-              {passwordStrength === 1 && "Weak"}
-              {passwordStrength === 2 && "Medium"}
-              {passwordStrength === 3 && "Strong"}
-              {passwordStrength === 4 && "Very strong"}
-            </p>
-          </div>
+        {errors.password && (
+          <p className="text-red-500">{errors.password.message}</p>
         )}
-        <div className="space-y-1 mt-1">
-          <div className="flex items-center text-xs">
-            {password.length >= 8 ? (
-              <CheckCircleIcon className="h-4 w-4 text-green-500 mr-1" />
-            ) : (
-              <XCircleIcon className="h-4 w-4 text-gray-400 mr-1" />
-            )}
-            <span
-              className={
-                password.length >= 8 ? "text-green-600" : "text-gray-600"
-              }
-            >
-              At least 8 characters
-            </span>
-          </div>
-          <div className="flex items-center text-xs">
-            {/[A-Z]/.test(password) ? (
-              <CheckCircleIcon className="h-4 w-4 text-green-500 mr-1" />
-            ) : (
-              <XCircleIcon className="h-4 w-4 text-gray-400 mr-1" />
-            )}
-            <span
-              className={
-                /[A-Z]/.test(password) ? "text-green-600" : "text-gray-600"
-              }
-            >
-              At least one uppercase letter
-            </span>
-          </div>
-        </div>
       </div>
       <div className="space-y-2">
         <label
@@ -187,15 +133,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSignup }) => {
           <input
             id="confirmPassword"
             type={showPassword ? "text" : "password"}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            {...register("confirmPassword")}
             className="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
             placeholder="••••••••"
             required
           />
         </div>
-        {confirmPassword && password !== confirmPassword && (
-          <p className="text-xs text-red-600">Passwords don't match</p>
+        {errors.confirmPassword && (
+          <p className="text-red-500">{errors.confirmPassword.message}</p>
         )}
       </div>
       <div className="flex items-center">
