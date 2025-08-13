@@ -85,7 +85,7 @@ const Dashboard: React.FC = () => {
               recommendations in Nigeria
             </p>
             <Link
-              to="/quiz"
+              to="/dashboard/survey"
               className="inline-block bg-blue-600 text-white rounded-lg px-5 py-3 text-sm font-medium hover:bg-blue-700"
             >
               Start Form Filling

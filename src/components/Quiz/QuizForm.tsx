@@ -371,7 +371,7 @@ const QuizForm: React.FC = () => {
           {quizSteps[currentStep].component}
         </div>
 
-        <div className="flex justify-between">
+        <div className="flex flex-col space-y-2 sm:flex-row sm:justify-between">
           <button
             type="button"
             onClick={goToPrevStep}

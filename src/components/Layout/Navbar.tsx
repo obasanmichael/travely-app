@@ -127,7 +127,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
             <span className="text-2xl font-bold text-gray-800">Travely</span>
           </Link>
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center">
+          <nav className="hidden lg:flex items-center">
             <div
               className={`flex rounded-full ${
                 isScrolled
@@ -170,7 +170,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
           </nav>
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-gray-700 z-10"
+            className="lg:hidden text-gray-700 z-10"
             onClick={() => setIsOpen(!isOpen)}
           >
             {isOpen ? (
@@ -183,7 +183,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
       </div>
       {/* Mobile Navigation */}
       {isOpen && (
-        <div className="md:hidden absolute top-0 left-0 w-full h-screen bg-white z-0 pt-24">
+        <div className="lg:hidden absolute top-0 left-0 w-full h-screen bg-white z-0 pt-24">
           <div className="container mx-auto text-center flex-col px-4 py-3 space-y-6">
             {navLinks.map((link) => (
               <a
