@@ -50,7 +50,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div>
       <div className="bg-white shadow-sm rounded-lg p-6 mb-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
@@ -63,7 +63,7 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="mt-4 md:mt-0">
             <Link
-              to="/quiz"
+              to="/dashboard/survey"
               className="inline-block bg-blue-600 text-white rounded-lg px-5 py-2 text-sm font-medium hover:bg-blue-700"
             >
               {recommendations ? "Retake questions" : "Answer Travel Questions"}
@@ -72,9 +72,9 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {recommendations ? (
+      {recommendations ? 
         <RecommendationsContainer />
-      ) : (
+       : (
         <div className="bg-white shadow-sm rounded-lg p-6 mb-8">
           <div className="text-center py-16">
             <h2 className="text-2xl font-semibold text-gray-800 mb-2">

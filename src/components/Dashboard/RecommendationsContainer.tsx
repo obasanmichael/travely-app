@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import RecommendationCard from "./RecommendationCard";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 // Define the types based on the recommendation_logic.py
 interface Recommendation {
@@ -69,7 +70,7 @@ const RecommendationsContainer = () => {
         );
       } catch (err) {
         console.error("Error fetching recommendations:", err);
-        setError("Failed to load recommendations. Please try again later.");
+        toast.error("Failed to load recommendations. Please try again later.");
       } finally {
         setLoading(false);
       }
