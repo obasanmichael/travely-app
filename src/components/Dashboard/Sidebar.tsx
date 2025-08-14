@@ -70,10 +70,14 @@ const Sidebar: React.FC<Props> = ({ onLogout }) => {
           }`}
       >
         {/* Header */}
-        <div className="flex justify-between items-center p-4 border-b">
+        <div
+          className={`${
+            isCollapsed ? "flex-col space-y-1" : ""
+          } flex justify-between items-center p-4 border-b`}
+        >
           <div className="flex items-center space-x-2">
             <MapPinIcon
-              className={`${isCollapsed ? "h-4 w-4" : "h-7"} text-blue-500`}
+              className={`${isCollapsed ? "" : "h-7 w-7"} text-blue-500`}
             />
             {!isCollapsed && (
               <div className="text-blue-700 font-bold text-2xl">Travely</div>
