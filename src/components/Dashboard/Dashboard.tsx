@@ -63,7 +63,7 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="mt-4 md:mt-0">
             <Link
-              to="/dashboard/survey"
+              to="/survey"
               className="inline-block bg-blue-600 text-white rounded-lg px-5 py-2 text-sm font-medium hover:bg-blue-700"
             >
               {recommendations ? "Retake questions" : "Answer Travel Questions"}
@@ -85,7 +85,7 @@ const Dashboard: React.FC = () => {
               recommendations in Nigeria
             </p>
             <Link
-              to="/dashboard/survey"
+              to="/survey"
               className="inline-block bg-blue-600 text-white rounded-lg px-5 py-3 text-sm font-medium hover:bg-blue-700"
             >
               Start Form Filling

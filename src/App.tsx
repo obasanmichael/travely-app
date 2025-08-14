@@ -27,7 +27,11 @@ const AppContent: React.FC<{
 }> = ({ isAuthenticated, onLogin, onLogout }) => {
   const location = useLocation();
   const isAuthOrDashboardPage =
-    location.pathname === "/auth" || location.pathname.startsWith("/dashboard");
+    location.pathname === "/auth" ||
+    location.pathname.startsWith("/recommendations") ||
+    location.pathname.startsWith("/survey") ||
+    location.pathname.startsWith("/explore") ||
+    location.pathname.startsWith("/settings");
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -45,14 +49,13 @@ const AppContent: React.FC<{
             path="/auth"
             element={
               isAuthenticated ? (
-                <Navigate to="/dashboard" />
+                <Navigate to="/recommendations" />
               ) : (
                 <Auth onLogin={onLogin} />
               )
             }
           />
           <Route
-            path="/dashboard"
             element={
               isAuthenticated ? (
                 <DashboardLayout onLogout={onLogout} />
@@ -61,7 +64,7 @@ const AppContent: React.FC<{
               )
             }
           >
-            <Route path="" element={<Dashboard />} />
+            <Route path="/recommendations" element={<Dashboard />} />
             <Route path="survey" element={<QuizForm />} />
             <Route path="explore" element={<SearchPage />} />
             <Route path="settings" element={<SettingsPage />} />

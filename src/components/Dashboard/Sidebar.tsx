@@ -23,13 +23,13 @@ const Sidebar: React.FC<Props> = ({ onLogout }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const menuItems = [
-    { label: "Recommendations", icon: History, href: "/dashboard" },
-    { label: "Take Survey", icon: ListChecks, href: "/dashboard/survey" },
-    { label: "Explore Destinations", icon: Search, href: "/dashboard/explore" },
+    { label: "Recommendations", icon: History, href: "/recommendations" },
+    { label: "Take Survey", icon: ListChecks, href: "/survey" },
+    { label: "Explore Destinations", icon: Search, href: "/explore" },
     {
       label: "Settings & Profile",
       icon: Settings,
-      href: "/dashboard/settings",
+      href: "/settings",
     },
   ];
 

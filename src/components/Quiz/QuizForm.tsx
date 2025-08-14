@@ -346,7 +346,7 @@ const QuizForm: React.FC = () => {
       );
 
       // Navigate to dashboard
-      navigate("/dashboard");
+      navigate("/recommendations");
     } catch (error) {
       console.error("Error submitting quiz:", error);
       alert("There was an error processing your quiz. Please try again.");

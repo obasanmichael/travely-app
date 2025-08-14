@@ -30,7 +30,7 @@ const LoginForm = () => {
     try {
       await signInWithEmailAndPassword(auth, data.email, data.password);
       toast.success("Signin successful! Redirecting...");
-      navigate("/dashboard");
+      navigate("/recommendations");
     } catch (error: any) {
       if (error.code === "auth/invalid-email") {
         toast.error("Invalid email address.");

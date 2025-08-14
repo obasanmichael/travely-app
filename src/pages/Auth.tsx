@@ -58,7 +58,7 @@ const Auth: React.FC<AuthProps> = ({ }) => {
             </div>
           </div>
           {/* Right side - Auth Forms */}
-          <div className="py-12 px-8 md:px-12">
+          <div className="py-12 px-5 md:px-12">
             <div className="text-center mb-10">
               <h1 className="text-3xl font-bold text-gray-900">
                 Welcome to Travely
