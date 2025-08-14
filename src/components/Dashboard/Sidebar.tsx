@@ -36,7 +36,7 @@ const Sidebar: React.FC<Props> = ({ onLogout }) => {
   return (
     <>
       {/* Mobile Top Bar */}
-      <div className="md:hidden justify-between p-2 border-b bg-white shadow-sm sticky top-0 z-40">
+      <div className="lg:hidden p-1 border-b bg-white shadow-sm sticky top-0 z-40">
         <button
           onClick={() => setIsMobileOpen(true)}
           className="p-2 rounded-lg hover:bg-gray-100"
@@ -52,7 +52,7 @@ const Sidebar: React.FC<Props> = ({ onLogout }) => {
       {/* Backdrop for Mobile */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
@@ -61,12 +61,12 @@ const Sidebar: React.FC<Props> = ({ onLogout }) => {
       <aside
         className={`bg-blue-50 border-r border-blue-100 h-screen flex flex-col shadow-lg
           ${isCollapsed ? "w-20" : "w-64"}
-          fixed md:static top-0 left-0 z-50
+          fixed lg:static top-0 left-0 z-50
           transform transition-transform duration-300 ease-in-out
           ${
             isMobileOpen
               ? "translate-x-0"
-              : "-translate-x-full md:translate-x-0"
+              : "-translate-x-full lg:translate-x-0"
           }`}
       >
         {/* Header */}
@@ -83,7 +83,7 @@ const Sidebar: React.FC<Props> = ({ onLogout }) => {
           {/* Collapse Button (Desktop) */}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 rounded hover:bg-gray-200 hidden md:block"
+            className="p-2 rounded hover:bg-gray-200 hidden lg:block"
           >
             {isCollapsed ? (
               <ChevronRight size={20} />
@@ -95,7 +95,7 @@ const Sidebar: React.FC<Props> = ({ onLogout }) => {
           {/* Close Button (Mobile) */}
           <button
             onClick={() => setIsMobileOpen(false)}
-            className="p-2 rounded hover:bg-gray-200 md:hidden"
+            className="p-2 rounded hover:bg-gray-200 lg:hidden"
           >
             <X size={20} />
           </button>

@@ -112,11 +112,9 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
           : "py-5 bg-transparent"
       }`}
     >
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-3 md:px-5">
         <div
-          className={`flex items-center justify-between mx-auto ${
-            isScrolled ? "max-w-6xl" : "max-w-7xl"
-          }`}
+          className={`flex items-center justify-between mx-auto `}
         >
           <Link
             to="/"
@@ -150,7 +148,8 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
                 </a>
               ))}
             </div>
-            <div className="ml-4">
+          </nav>
+            <div className="ml-4 hidden lg:block">
               {isAuthenticated ? (
                 <button
                   onClick={onLogout}
@@ -167,7 +166,6 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
                 </Link>
               )}
             </div>
-          </nav>
           {/* Mobile Menu Button */}
           <button
             className="lg:hidden text-gray-700 z-10"
