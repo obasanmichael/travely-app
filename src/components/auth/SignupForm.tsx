@@ -1,63 +1,67 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod"
-import { useForm } from "react-hook-form"
+import { z } from "zod";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import {
-  EyeIcon,
-  EyeOffIcon,
-
-} from "lucide-react";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { auth } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 // import { data } from "react-router-dom";
 
-
-const signupSchema = z.object({
-  fullName: z.string().min(2, {message: "Full Name shouldn't be less than 2 characters"}),
-  email: z.string().email('Invalid Email Address'),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {message: "Passwords don't match", path: ["confirmPassword"]});
+const signupSchema = z
+  .object({
+    fullName: z
+      .string()
+      .min(2, { message: "Full Name shouldn't be less than 2 characters" }),
+    email: z.string().email("Invalid Email Address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
 const SignupForm = () => {
-  const navigate = useNavigate()
-  const { register, handleSubmit, formState: { errors } } = useForm<SignupFormValues>({resolver: zodResolver(signupSchema)})
+  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupFormValues>({ resolver: zodResolver(signupSchema) });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-
   const onSubmit = async (data: SignupFormValues) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-       await createUserWithEmailAndPassword(auth, data.email, data.password)
+      await createUserWithEmailAndPassword(auth, data.email, data.password);
 
-       if (auth.currentUser) {
-      await updateProfile(auth.currentUser, {
-        displayName: data.fullName
-      })
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, {
+          displayName: data.fullName,
+        });
+      }
+      toast.success("Signup successful! Redirecting...");
+      navigate("/recommendations");
+    } catch (error: any) {
+      if (error.code === "auth/email-already-in-use") {
+        toast.error(
+          "This email is already registered. Please use another email."
+        );
+      } else if (error.code === "auth/invalid-email") {
+        toast.error("Invalid email address.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
     }
-    toast.success("Signup successful! Redirecting...");
-    navigate('/dashboard')
-    }
-   
-    catch(error:any) {
-     if (error.code === "auth/email-already-in-use") {
-       toast.error("This email is already registered. Please use another email.");
-     } else if (error.code === "auth/invalid-email") {
-       toast.error("Invalid email address.");
-     } else {
-       toast.error("Something went wrong. Please try again.");
-     }
-    }
-    finally {
-      setIsLoading(false)
-    }
-  }
-  
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="space-y-2">
