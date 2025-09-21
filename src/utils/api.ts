@@ -3,7 +3,8 @@
 // API service for connecting to the FastAPI backend
 import { QuizFormData, RecommendationResponse } from '../components/types/types';
 
-const API_BASE_URL = "http://127.0.0.1:8000"; // Change this to your actual API URL
+// const API_BASE_URL = "http://127.0.0.1:8000"; 
+const API_BASE_URL = "https://travely-backend.onrender.com/"; 
 
 export const getRecommendations = async (quizData: QuizFormData): Promise<RecommendationResponse> => {
   try {

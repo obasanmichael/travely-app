@@ -18,7 +18,7 @@ import toast from "react-hot-toast";
 // ---------- Schema ----------
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name is too short"),
-  email: z.string().email("Enter a valid email"),
+  email: z.email("Enter a valid email"),
   bio: z.string().max(180, "Keep it under 180 characters").optional(),
   newsletter: z.boolean().default(true),
   push: z.boolean().default(true),
