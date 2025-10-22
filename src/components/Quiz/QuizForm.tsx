@@ -190,7 +190,7 @@ const QuizForm: React.FC = () => {
             <h5 className="font-medium text-gray-700 mb-2">
               Estimated Daily Breakdown:
             </h5>
-            <div className="grid grid-cols-3 gap-2 text-sm">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm">
               <div className="text-center">
                 <div className="font-medium">Accommodation</div>
                 <div className="text-gray-600">
@@ -371,7 +371,7 @@ const QuizForm: React.FC = () => {
           {quizSteps[currentStep].component}
         </div>
 
-        <div className="flex flex-col space-y-2 sm:flex-row sm:justify-between">
+        <div className="flex flex-col space-y-2 md:flex-row md:justify-between">
           <button
             type="button"
             onClick={goToPrevStep}
