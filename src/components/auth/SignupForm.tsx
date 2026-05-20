@@ -72,7 +72,7 @@ const SignupForm = () => {
       <div className="space-y-2">
         <label
           htmlFor="fullName"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-secondary"
         >
           Full Name
         </label>
@@ -92,7 +92,7 @@ const SignupForm = () => {
       <div className="space-y-2">
         <label
           htmlFor="email"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-secondary"
         >
           Email Address
         </label>
@@ -110,7 +110,7 @@ const SignupForm = () => {
       <div className="space-y-2">
         <label
           htmlFor="password"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-secondary"
         >
           Password
         </label>
@@ -130,9 +130,9 @@ const SignupForm = () => {
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? (
-              <EyeOffIcon className="h-5 w-5 text-gray-400" />
+              <EyeOffIcon className="h-5 w-5 text-muted" />
             ) : (
-              <EyeIcon className="h-5 w-5 text-gray-400" />
+              <EyeIcon className="h-5 w-5 text-muted" />
             )}
           </button>
         </div>
@@ -143,7 +143,7 @@ const SignupForm = () => {
       <div className="space-y-2">
         <label
           htmlFor="confirmPassword"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-secondary"
         >
           Confirm Password
         </label>
@@ -166,23 +166,23 @@ const SignupForm = () => {
         <input
           id="terms"
           type="checkbox"
-          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          className="h-4 w-4 text-travel-600 focus:ring-travel-500 border-default rounded"
           required
         />
-        <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
+        <label htmlFor="terms" className="ml-2 block text-sm text-secondary">
           I agree to the{" "}
-          <a href="#" className="text-blue-600 hover:underline">
+          <a href="#" className="text-travel-600 dark:text-travel-400 hover:underline">
             Terms of Service
           </a>{" "}
           and{" "}
-          <a href="#" className="text-blue-600 hover:underline">
+          <a href="#" className="text-travel-600 dark:text-travel-400 hover:underline">
             Privacy Policy
           </a>
         </label>
       </div>
       <button
         type="submit"
-        className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+        className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-travel-600 hover:bg-travel-700 dark:bg-travel-500 dark:hover:bg-travel-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-travel-500 dark:focus:ring-offset-slate-900 ${
           isLoading ? "opacity-75 cursor-not-allowed" : ""
         }`}
         disabled={isLoading}
@@ -192,16 +192,16 @@ const SignupForm = () => {
       <div className="mt-6">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300"></div>
+            <div className="w-full border-t border-default"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">Or sign up with</span>
+            <span className="px-2 bg-surface-raised text-muted">Or sign up with</span>
           </div>
         </div>
         <div className="mt-6 grid grid-cols-3 gap-3">
           <button
             type="button"
-            className="w-full py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="w-full py-2.5 px-4 border border-default rounded-lg shadow-sm bg-surface-raised text-sm font-medium text-secondary hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-travel-500 dark:focus:ring-offset-slate-900"
           >
             <svg
               className="h-5 w-5 mx-auto"
@@ -214,7 +214,7 @@ const SignupForm = () => {
           </button>
           <button
             type="button"
-            className="w-full py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="w-full py-2.5 px-4 border border-default rounded-lg shadow-sm bg-surface-raised text-sm font-medium text-secondary hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-travel-500 dark:focus:ring-offset-slate-900"
           >
             <svg
               className="h-5 w-5 mx-auto"
@@ -227,7 +227,7 @@ const SignupForm = () => {
           </button>
           <button
             type="button"
-            className="w-full py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="w-full py-2.5 px-4 border border-default rounded-lg shadow-sm bg-surface-raised text-sm font-medium text-secondary hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-travel-500 dark:focus:ring-offset-slate-900"
           >
             <svg
               className="h-5 w-5 mx-auto"

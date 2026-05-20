@@ -31,8 +31,8 @@ const Dashboard: React.FC = () => {
         hasRecommendations={hasRecommendations}
       />
 
-      {showRecommendations ? (
-        <RecommendationsContainer />
+      {showRecommendations && data ? (
+        <RecommendationsContainer data={data} />
       ) : (
         <EmptyRecommendations />
       )}

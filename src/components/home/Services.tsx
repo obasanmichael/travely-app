@@ -46,13 +46,13 @@ const Services: React.FC = () => {
     },
   ];
   return (
-    <section id="services" className="py-20 bg-gray-50">
+    <section id="services" className="py-20 bg-surface-base">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
             Our Services
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-secondary max-w-2xl mx-auto">
             We help you discover the perfect destination tailored to your
             preferences
           </p>
@@ -61,14 +61,14 @@ const Services: React.FC = () => {
           {services.map((service, index) => (
             <div
               key={index}
-              className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow duration-300 flex"
+              className="bg-surface-raised rounded-lg p-6 shadow-card hover:shadow-elevated border border-default transition-shadow duration-300 flex"
             >
               <div className="mr-4 mt-1">{service.icon}</div>
               <div>
-                <h3 className="text-xl font-semibold mb-2 text-gray-800">
+                <h3 className="text-xl font-semibold mb-2 text-primary">
                   {service.title}
                 </h3>
-                <p className="text-gray-600">{service.description}</p>
+                <p className="text-secondary">{service.description}</p>
               </div>
             </div>
           ))}

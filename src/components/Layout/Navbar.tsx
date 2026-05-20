@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { MenuIcon, X as CloseIcon, MapPinIcon } from "lucide-react";
 import { navLinks } from "../..";
+import { ThemeToggle } from "../ui/ThemeToggle";
 
 interface NavbarProps {
   isAuthenticated: boolean;
@@ -74,8 +75,8 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
         onHero
           ? "py-5 bg-transparent"
           : isScrolled
-            ? "py-3 backdrop-blur-md bg-white/90 shadow-sm"
-            : "py-5 bg-white/80 backdrop-blur-sm"
+            ? "py-3 backdrop-blur-md bg-surface-raised/90 shadow-sm border-b border-default"
+            : "py-5 bg-surface-raised/80 backdrop-blur-sm"
       }`}
     >
       <div className="container mx-auto px-3 md:px-5">
@@ -92,7 +93,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
             />
             <span
               className={`text-2xl font-bold ${
-                onHero ? "text-white" : "text-gray-800"
+                onHero ? "text-white" : "text-primary"
               }`}
             >
               Travely
@@ -105,8 +106,8 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
                 onHero
                   ? "bg-white/10 backdrop-blur-sm"
                   : isScrolled
-                    ? "bg-white/80 shadow-sm border border-gray-100"
-                    : "bg-gray-100/80"
+                    ? "bg-surface-muted shadow-sm border border-default"
+                    : "bg-surface-muted/80"
               }`}
             >
               {navLinks.map((link) => (
@@ -118,10 +119,10 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
                     activeSection === link.id
                       ? onHero
                         ? "text-white bg-white/20"
-                        : "text-blue-600 bg-blue-50"
+                        : "text-travel-600 dark:text-travel-400 bg-accent-soft"
                       : onHero
                         ? "text-white/90 hover:text-white"
-                        : "text-gray-700 hover:text-blue-600"
+                        : "text-secondary hover:text-travel-600 dark:hover:text-travel-400"
                   }`}
                 >
                   {link.title}
@@ -130,14 +131,15 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
             </div>
           </nav>
 
-          <div className="ml-4 hidden lg:block">
+          <div className="ml-4 hidden lg:flex items-center gap-3">
+            <ThemeToggle overlay={onHero} compact={!onHero} />
             {isAuthenticated ? (
               <button
                 onClick={onLogout}
                 className={`px-5 py-2 rounded-lg font-medium transition-colors ${
                   onHero
                     ? "bg-white/15 text-white border border-white/30 hover:bg-white/25"
-                    : "bg-white border border-gray-200 text-gray-800 hover:bg-gray-50"
+                    : "bg-surface-raised border border-default text-primary hover:bg-surface-muted"
                 }`}
               >
                 Logout
@@ -145,11 +147,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
             ) : (
               <Link
                 to="/auth"
-                className={`px-5 py-2 rounded-full font-medium transition-colors ${
-                  onHero
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : "bg-blue-500 text-white hover:bg-blue-600"
-                }`}
+                className="px-5 py-2 rounded-full font-medium transition-colors bg-travel-600 text-white hover:bg-travel-700 dark:bg-travel-500 dark:hover:bg-travel-400"
               >
                 Login / Sign Up
               </Link>
@@ -158,7 +156,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
 
           <button
             className={`lg:hidden z-10 ${
-              onHero ? "text-white" : "text-gray-700"
+              onHero ? "text-white" : "text-primary"
             }`}
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? "Close menu" : "Open menu"}
@@ -173,21 +171,26 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
       </div>
 
       {isOpen && (
-        <div className="lg:hidden absolute top-0 left-0 w-full h-screen bg-white z-0 pt-24">
+        <div className="lg:hidden absolute top-0 left-0 w-full h-screen bg-surface-raised z-0 pt-24">
           <div className="container mx-auto text-center flex-col px-4 py-3 space-y-6">
+            <div className="flex justify-center pb-2">
+              <ThemeToggle compact />
+            </div>
             {navLinks.map((link) => (
               <a
                 key={link.title}
                 href={link.path}
                 onClick={(e) => handleNavLinkClick(e, link.id)}
                 className={`block py-3 text-lg font-medium ${
-                  activeSection === link.id ? "text-blue-600" : "text-gray-700"
+                  activeSection === link.id
+                    ? "text-travel-600 dark:text-travel-400"
+                    : "text-secondary"
                 }`}
               >
                 {link.title}
               </a>
             ))}
-            <div className="pt-4 border-t flex justify-center border-gray-100">
+            <div className="pt-4 border-t flex justify-center border-default">
               {isAuthenticated ? (
                 <button
                   className="block py-2 px-5 rounded-lg bg-red-500 text-white text-center font-medium"
@@ -198,7 +201,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => {
               ) : (
                 <Link
                   to="/auth"
-                  className="block py-3 px-5 rounded-full bg-blue-500 text-white text-center font-medium"
+                  className="block py-3 px-5 rounded-full bg-travel-600 text-white text-center font-medium dark:bg-travel-500"
                   onClick={() => setIsOpen(false)}
                 >
                   Login / Sign Up

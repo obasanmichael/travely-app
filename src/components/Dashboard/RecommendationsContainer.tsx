@@ -1,33 +1,13 @@
 import { Wallet } from "lucide-react";
 import RecommendationCard from "./RecommendationCard";
-import { useRecommendations } from "../../hooks/useRecommendations";
-import { Spinner } from "../ui/Spinner";
-import { Card } from "../ui/Card";
+import type { RecommendationResponse } from "../types/types";
 import { Badge } from "../ui/Badge";
 
-const RecommendationsContainer = () => {
-  const { data, loading, error } = useRecommendations({ fetchOnMount: true });
+interface RecommendationsContainerProps {
+  data: RecommendationResponse;
+}
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[280px]">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card className="border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20">
-        <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
-      </Card>
-    );
-  }
-
-  if (!data || data.recommendations.length === 0) {
-    return null;
-  }
-
+const RecommendationsContainer = ({ data }: RecommendationsContainerProps) => {
   return (
     <section className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

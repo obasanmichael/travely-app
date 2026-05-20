@@ -36,13 +36,13 @@ const PopularDestinations: React.FC = () => {
     },
   ];
   return (
-    <section id="destinations" className="py-20 bg-blue-50">
+    <section id="destinations" className="py-20 bg-accent-soft">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
             Popular Destinations
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-secondary max-w-2xl mx-auto">
             Explore some of our most loved travel destinations
           </p>
         </div>
@@ -50,7 +50,7 @@ const PopularDestinations: React.FC = () => {
           {destinations.map((destination, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl overflow-hidden shadow-lg transform transition-transform duration-400 hover:-translate-y-3"
+              className="bg-surface-raised rounded-xl overflow-hidden shadow-card border border-default transform transition-transform duration-400 hover:-translate-y-3"
             >
               <div className="relative h-56">
                 <img
@@ -68,11 +68,11 @@ const PopularDestinations: React.FC = () => {
                 <div className="flex justify-between items-center mb-3">
                   <div className="flex items-center">
                     <StarIcon className="h-5 w-5 text-yellow-400 fill-current" />
-                    <span className="ml-1 text-gray-800 font-medium">
+                    <span className="ml-1 text-primary font-medium">
                       {destination.rating}
                     </span>
                   </div>
-                  <span className="text-gray-600 text-sm">
+                  <span className="text-secondary text-sm">
                     {destination.priceRange}
                   </span>
                 </div>
@@ -80,7 +80,7 @@ const PopularDestinations: React.FC = () => {
                   {destination.tags.map((tag, i) => (
                     <span
                       key={i}
-                      className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full"
+                      className="px-2 py-1 bg-accent-soft text-travel-700 dark:text-travel-300 text-xs rounded-full"
                     >
                       {tag}
                     </span>

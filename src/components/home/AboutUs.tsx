@@ -1,55 +1,55 @@
 import React from "react";
 const AboutUs: React.FC = () => {
   return (
-    <section id="about" className="py-20 bg-white">
+    <section id="about" className="py-20 bg-surface-raised">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="order-2 lg:order-1">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">
               About Travely
             </h2>
-            <p className="text-lg text-gray-700 mb-6">
+            <p className="text-lg text-secondary mb-6">
               At Travely, we believe everyone deserves to find their perfect
               travel destination without the stress of endless research and
               uncertainty.
             </p>
-            <p className="text-lg text-gray-700 mb-6">
+            <p className="text-lg text-secondary mb-6">
               Founded by a team of passionate travelers and tech enthusiasts,
               we've built a platform that combines advanced recommendation
               algorithms with human expertise to match you with destinations
               you'll love.
             </p>
-            <p className="text-lg text-gray-700 mb-6">
+            <p className="text-lg text-secondary mb-6">
               Our mission is to make travel planning simple, personalized, and
               enjoyable, helping you discover places that perfectly match your
               preferences, budget, and travel style.
             </p>
             <div className="mt-8">
-              <h3 className="text-xl font-semibold mb-4 text-gray-800">
+              <h3 className="text-xl font-semibold mb-4 text-primary">
                 Our Values
               </h3>
               <ul className="space-y-3">
                 <li className="flex items-start">
-                  <span className="h-6 w-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3 mt-0.5">
+                  <span className="h-6 w-6 rounded-full bg-accent-soft text-travel-600 dark:text-travel-400 flex items-center justify-center mr-3 mt-0.5">
                     ✓
                   </span>
-                  <span className="text-gray-700">
+                  <span className="text-secondary">
                     Personalization over generic recommendations
                   </span>
                 </li>
                 <li className="flex items-start">
-                  <span className="h-6 w-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3 mt-0.5">
+                  <span className="h-6 w-6 rounded-full bg-accent-soft text-travel-600 dark:text-travel-400 flex items-center justify-center mr-3 mt-0.5">
                     ✓
                   </span>
-                  <span className="text-gray-700">
+                  <span className="text-secondary">
                     Transparency in pricing and information
                   </span>
                 </li>
                 <li className="flex items-start">
-                  <span className="h-6 w-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3 mt-0.5">
+                  <span className="h-6 w-6 rounded-full bg-accent-soft text-travel-600 dark:text-travel-400 flex items-center justify-center mr-3 mt-0.5">
                     ✓
                   </span>
-                  <span className="text-gray-700">
+                  <span className="text-secondary">
                     Inclusivity for all types of travelers
                   </span>
                 </li>

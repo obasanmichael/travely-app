@@ -49,6 +49,8 @@ export function useRecommendations(
           if (!cancelled) setData(JSON.parse(saved));
         } catch {
           localStorage.removeItem(STORAGE_KEY);
+        } finally {
+          if (!cancelled) setLoading(false);
         }
         return;
       }

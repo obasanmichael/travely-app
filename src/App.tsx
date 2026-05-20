@@ -33,11 +33,7 @@ const AppContent: React.FC<{
   const isAuthOrDashboardPage = isAuthPage || isDashboard;
 
   return (
-    <div
-      className={`flex flex-col min-h-screen ${
-        isDashboard ? "bg-surface-base" : "bg-gray-50"
-      }`}
-    >
+    <div className="flex flex-col min-h-screen bg-surface-base text-primary">
       <div className="flex justify-end lg:justify-center">
         <Toaster reverseOrder={false} />
       </div>
@@ -113,8 +109,8 @@ const App: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-500"></div>
+      <div className="flex justify-center items-center h-screen bg-surface-base">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-travel-600 dark:border-travel-400"></div>
       </div>
     );
   }

@@ -22,13 +22,13 @@ const HowItWorks: React.FC = () => {
     },
   ];
   return (
-    <section id="how-it-works" className="py-20 bg-white">
+    <section id="how-it-works" className="py-20 bg-surface-raised">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">
             How Travely Works
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-secondary max-w-2xl mx-auto">
             Finding your perfect travel destination has never been easier
           </p>
         </div>
@@ -36,15 +36,15 @@ const HowItWorks: React.FC = () => {
           {steps.map((step, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl p-8 text-center shadow-lg border border-gray-100 transform transition-transform duration-400 hover:translate-y-3"
+              className="bg-surface-base rounded-xl p-8 text-center shadow-card border border-default transform transition-transform duration-400 hover:translate-y-3"
             >
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent-soft mb-6">
                 {step.icon}
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-800">
+              <h3 className="text-xl font-semibold mb-3 text-primary">
                 {step.title}
               </h3>
-              <p className="text-gray-600">{step.description}</p>
+              <p className="text-secondary">{step.description}</p>
             </div>
           ))}
         </div>

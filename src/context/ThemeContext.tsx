@@ -40,29 +40,21 @@ export function isDashboardPath(pathname: string): boolean {
   );
 }
 
-function applyTheme(theme: Theme, active: boolean) {
+function applyTheme(theme: Theme) {
   const root = document.documentElement;
-  if (!active) {
-    root.classList.remove("dark");
-    root.style.colorScheme = "light";
-    return;
-  }
   root.classList.toggle("dark", theme === "dark");
   root.style.colorScheme = theme;
 }
 
 export const ThemeProvider: React.FC<{
   children: React.ReactNode;
-  active?: boolean;
-}> = ({ children, active = true }) => {
+}> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(getInitialTheme);
 
   useEffect(() => {
-    applyTheme(theme, active);
-    if (active) {
-      localStorage.setItem(STORAGE_KEY, theme);
-    }
-  }, [theme, active]);
+    applyTheme(theme);
+    localStorage.setItem(STORAGE_KEY, theme);
+  }, [theme]);
 
   const setTheme = useCallback((next: Theme) => {
     setThemeState(next);
