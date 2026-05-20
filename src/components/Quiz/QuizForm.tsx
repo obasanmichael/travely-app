@@ -9,6 +9,7 @@ import {
   quizLabelClass,
   quizHintClass,
   quizBreakdownClass,
+  quizBudgetSummaryClass,
 } from "./quizStyles";
 
 interface QuizFormData {
@@ -44,16 +45,16 @@ const classifyBudget = (budget: number): string => {
   return "High Budget";
 };
 
-const getBudgetCategoryColor = (category: string): string => {
+const getBudgetCategoryAccent = (category: string): string => {
   switch (category) {
     case "Low Budget":
-      return "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800";
+      return "border-l-emerald-600 dark:border-l-emerald-400 text-emerald-700 dark:text-emerald-300";
     case "Medium Budget":
-      return "text-travel-700 dark:text-travel-300 bg-travel-50 dark:bg-travel-950/40 border-travel-200 dark:border-travel-800";
+      return "border-l-travel-600 dark:border-l-travel-400 text-travel-700 dark:text-travel-300";
     case "High Budget":
-      return "text-violet-700 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/40 border-violet-200 dark:border-violet-800";
+      return "border-l-violet-600 dark:border-l-violet-400 text-violet-700 dark:text-violet-300";
     default:
-      return "text-secondary bg-surface-muted border-default";
+      return "border-l-travel-600 dark:border-l-travel-400 text-secondary";
   }
 };
 
@@ -138,22 +139,24 @@ const QuizForm: React.FC = () => {
           </div>
 
           <div
-            className={`mt-4 p-4 rounded-xl border-2 ${getBudgetCategoryColor(budgetCategory)}`}
+            className={`${quizBudgetSummaryClass} ${getBudgetCategoryAccent(budgetCategory)}`}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <div>
-                <h4 className="font-semibold text-lg">{budgetCategory}</h4>
-                <p className="text-sm mt-1 opacity-90">
+                <h4 className="font-semibold text-lg text-primary">
+                  {budgetCategory}
+                </h4>
+                <p className="text-sm mt-1 font-medium">
                   ₦{formData.budget.toLocaleString()} per day
                 </p>
               </div>
-              <span className="text-2xl">
+              <span className="text-2xl shrink-0" aria-hidden>
                 {budgetCategory === "Low Budget" && "💰"}
                 {budgetCategory === "Medium Budget" && "🏨"}
                 {budgetCategory === "High Budget" && "✨"}
               </span>
             </div>
-            <p className="text-sm mt-2 opacity-80">
+            <p className="text-sm mt-2 text-secondary leading-relaxed">
               {getBudgetExamples(budgetCategory)}
             </p>
           </div>

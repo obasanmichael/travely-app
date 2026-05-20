@@ -8,3 +8,6 @@ export const quizHintClass =
 
 export const quizBreakdownClass =
   "mt-4 p-4 rounded-xl bg-surface-muted border border-subtle";
+
+export const quizBudgetSummaryClass =
+  "mt-4 p-4 rounded-xl bg-surface-muted border border-subtle border-l-4";
