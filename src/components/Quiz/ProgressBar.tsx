@@ -13,13 +13,13 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 
   return (
     <div className="mb-6">
-      <div className="w-full bg-gray-200 rounded-full h-2.5">
+      <div className="w-full bg-surface-muted rounded-full h-2.5">
         <div
-          className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out"
+          className="bg-travel-600 dark:bg-travel-500 h-2.5 rounded-full transition-all duration-300 ease-in-out"
           style={{ width: `${progress}%` }}
-        ></div>
+        />
       </div>
-      <div className="text-xs text-right mt-1 text-gray-500">
+      <div className="text-xs text-right mt-1 text-muted">
         Step {currentStep + 1} of {totalSteps}
       </div>
     </div>

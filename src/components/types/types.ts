@@ -19,6 +19,8 @@ export interface QuizFormData {
     accommodation_type: string;
     nearby_hotel: string;
     hotel_price_range: string;
+    feeding_cost_range: string;
+    necessities_range: string;
     budget_category: string;
     score: number;
   }

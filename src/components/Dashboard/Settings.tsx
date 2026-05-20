@@ -14,20 +14,21 @@ import {
   Save,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { Button } from "../ui/Button";
+import { Card, CardHeader } from "../ui/Card";
+import { ThemeToggle } from "../ui/ThemeToggle";
 
-// ---------- Schema ----------
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name is too short"),
   email: z.email("Enter a valid email"),
   bio: z.string().max(180, "Keep it under 180 characters").optional(),
-  newsletter: z.boolean().default(true),
-  push: z.boolean().default(true),
-  profilePrivate: z.boolean().default(false),
+  newsletter: z.boolean(),
+  push: z.boolean(),
+  profilePrivate: z.boolean(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
-// ---------- Helper UI ----------
 const FieldLabel = ({
   htmlFor,
   children,
@@ -37,25 +38,20 @@ const FieldLabel = ({
 }) => (
   <label
     htmlFor={htmlFor}
-    className="block text-sm font-medium text-gray-700 mb-1"
+    className="block text-sm font-medium text-secondary mb-1.5"
   >
     {children}
   </label>
 );
 
+const inputClasses =
+  "w-full rounded-xl border border-default bg-surface-raised text-primary px-4 py-3 shadow-sm outline-none transition focus:border-travel-500 focus:ring-4 focus:ring-travel-500/10 placeholder:text-muted";
+
 const Input = React.forwardRef<
   HTMLInputElement,
   React.InputHTMLAttributes<HTMLInputElement>
 >(({ className = "", ...props }, ref) => (
-  <input
-    ref={ref}
-    className={[
-      "w-full rounded-xl border border-gray-200 bg-white px-4 py-3",
-      "shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100",
-      className,
-    ].join(" ")}
-    {...props}
-  />
+  <input ref={ref} className={`${inputClasses} ${className}`} {...props} />
 ));
 Input.displayName = "Input";
 
@@ -63,42 +59,24 @@ const Textarea = React.forwardRef<
   HTMLTextAreaElement,
   React.TextareaHTMLAttributes<HTMLTextAreaElement>
 >(({ className = "", ...props }, ref) => (
-  <textarea
-    ref={ref}
-    className={[
-      "w-full rounded-xl border border-gray-200 bg-white px-4 py-3",
-      "shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100",
-      className,
-    ].join(" ")}
-    {...props}
-  />
+  <textarea ref={ref} className={`${inputClasses} ${className}`} {...props} />
 ));
 Textarea.displayName = "Textarea";
 
-const Card: React.FC<{
+const SettingsCard: React.FC<{
   title: string;
   description?: string;
-  right?: React.ReactNode;
-  className: string;
+  className?: string;
   children: React.ReactNode;
-}> = ({ title, description, right, className = "", children }) => (
-  <section
-    className={`bg-white rounded-2xl border border-gray-100 shadow-sm ${className}`}
-  >
-    <div className="flex items-start justify-between p-5 border-b border-gray-100">
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        {description && (
-          <p className="text-sm text-gray-500 mt-0.5">{description}</p>
-        )}
-      </div>
-      {right}
+}> = ({ title, description, className = "", children }) => (
+  <Card className={className} padding="none">
+    <div className="p-5 border-b border-default">
+      <CardHeader title={title} description={description} />
     </div>
     <div className="p-5">{children}</div>
-  </section>
+  </Card>
 );
 
-// ---------- Avatar Uploader ----------
 const AvatarUploader: React.FC<{
   value?: string | null;
   onChange: (dataUrl: string) => void;
@@ -128,12 +106,12 @@ const AvatarUploader: React.FC<{
           "https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=200&h=200&fit=crop&auto=format"
         }
         alt="Profile"
-        className="w-28 h-28 rounded-2xl object-cover border border-gray-200 shadow"
+        className="w-28 h-28 rounded-2xl object-cover border border-default shadow-card"
       />
       <button
         type="button"
         onClick={handlePick}
-        className="absolute -bottom-2 -right-2 inline-flex items-center justify-center rounded-xl bg-blue-600 text-white shadow-md hover:bg-blue-700 w-9 h-9"
+        className="absolute -bottom-2 -right-2 inline-flex items-center justify-center rounded-xl bg-travel-600 text-white shadow-md hover:bg-travel-700 w-9 h-9 transition-colors"
         aria-label="Change profile photo"
       >
         <Camera className="w-4 h-4" />
@@ -149,88 +127,102 @@ const AvatarUploader: React.FC<{
   );
 };
 
-// ---------- Page ----------
+const ToggleRow: React.FC<{
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  register: ReturnType<typeof useForm<ProfileFormValues>>["register"];
+  name: keyof ProfileFormValues;
+}> = ({ icon, title, description, register, name }) => (
+  <label className="flex items-center justify-between rounded-xl border border-default bg-surface-raised px-4 py-3 cursor-pointer hover:bg-surface-muted transition-colors">
+    <div className="flex items-center gap-3">
+      {icon}
+      <div>
+        <p className="font-medium text-primary text-sm">{title}</p>
+        <p className="text-xs text-muted">{description}</p>
+      </div>
+    </div>
+    <input
+      type="checkbox"
+      className="h-5 w-5 rounded accent-travel-600"
+      {...register(name)}
+    />
+  </label>
+);
+
 const SettingsPage: React.FC = () => {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isDirty },
-    setValue,
-    watch,
   } = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema) as any, // Fix type mismatch for optional fields
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      bio: "",
+      newsletter: true,
+      push: true,
+      profilePrivate: false,
+    },
   });
 
   const [activeTab, setActiveTab] = useState<"profile" | "preferences">(
     "profile"
   );
-  const avatar = watch("avatar" as any); // ignore TS for local-only avatar (not in schema)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   const onSubmit = async (values: ProfileFormValues) => {
-    // TODO: wire Firebase here:
-    // - If avatar changed: upload to Storage and get URL
-    // - await updateProfile(auth.currentUser, { displayName: values.fullName, photoURL })
-    // - If email changed: await updateEmail(auth.currentUser, values.email)
-      // - Persist bio/privacy/notifications to Firestore (users/{uid})
-      toast.success('changes updated successfully')
+    toast.success("Changes updated successfully");
     await new Promise((r) => setTimeout(r, 600));
-    // toast.success("Profile updated");
     console.log("Save payload:", values);
   };
 
-  const headerActions = (
-    <button
-      type="submit"
-      form="settings-form"
-      disabled={isSubmitting || !isDirty}
-      className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-white shadow-sm transition
-        ${
-          isSubmitting || !isDirty
-            ? "bg-blue-300 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700"
-        }`}
-    >
-      <Save className="w-4 h-4" />
-      Save Changes
-    </button>
-  );
+  const tabClass = (tab: typeof activeTab) =>
+    `px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+      activeTab === tab
+        ? "bg-travel-600 text-white shadow-sm dark:bg-travel-500"
+        : "bg-surface-raised border border-default text-secondary hover:bg-surface-muted hover:text-primary"
+    }`;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      {/* Sticky header on desktop */}
-      <div className="sticky top-0 z-10 bg-gray-50/70 backdrop-blur supports-[backdrop-filter]:bg-gray-50/60 border-b border-gray-200 -mx-2 px-2">
-        <div className="max-w-5xl mx-auto py-3 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Settings & Profile
-            </h1>
-            <p className="text-sm text-gray-500">
-              Manage your personal info, privacy and notifications.
-            </p>
-          </div>
-          <div className="hidden md:block">{headerActions}</div>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-primary tracking-tight">
+            Settings & Profile
+          </h1>
+          <p className="text-sm text-secondary mt-1">
+            Manage your personal info, appearance, and notifications.
+          </p>
         </div>
+        <Button
+          type="submit"
+          form="settings-form"
+          disabled={isSubmitting || !isDirty}
+          size="md"
+        >
+          <Save className="w-4 h-4" />
+          Save changes
+        </Button>
       </div>
 
-      {/* Tabs */}
+      <Card padding="sm" className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-primary">Appearance</p>
+          <p className="text-xs text-muted">Switch between light and dark mode</p>
+        </div>
+        <ThemeToggle compact />
+      </Card>
+
       <div className="flex gap-2">
-        <button
-          onClick={() => setActiveTab("profile")}
-          className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
-            activeTab === "profile"
-              ? "bg-blue-600 text-white"
-              : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
-          }`}
-        >
+        <button type="button" onClick={() => setActiveTab("profile")} className={tabClass("profile")}>
           Profile
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab("preferences")}
-          className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
-            activeTab === "preferences"
-              ? "bg-blue-600 text-white"
-              : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
-          }`}
+          className={tabClass("preferences")}
         >
           Preferences
         </button>
@@ -241,38 +233,34 @@ const SettingsPage: React.FC = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-6"
       >
-        {/* PROFILE TAB */}
         {activeTab === "profile" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card
-              title="Profile Photo"
-              description="Upload a clear photo—your avatar across Travely."
+            <SettingsCard
+              title="Profile photo"
+              description="Your avatar across Travely."
               className="lg:col-span-1"
             >
               <div className="flex items-center gap-4">
                 <AvatarUploader
-                  value={avatar as any}
+                  value={avatarPreview}
                   onChange={(dataUrl) => {
-                    // local preview only; store in RHF to save later
-                    setValue("avatar" as any, dataUrl, { shouldDirty: true });
+                    setAvatarPreview(dataUrl);
                   }}
                 />
-                <div className="text-xs text-gray-500">
-                  PNG/JPG, up to 2MB. Square works best.
-                </div>
+                <p className="text-xs text-muted">PNG/JPG, up to 2MB. Square works best.</p>
               </div>
-            </Card>
+            </SettingsCard>
 
-            <Card
-              title="Basic Info"
+            <SettingsCard
+              title="Basic info"
               description="Keep your details up to date."
               className="lg:col-span-2"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <FieldLabel htmlFor="fullName">Full Name</FieldLabel>
+                  <FieldLabel htmlFor="fullName">Full name</FieldLabel>
                   <div className="relative">
-                    <User2 className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
+                    <User2 className="absolute left-3 top-3.5 h-4 w-4 text-muted" />
                     <Input
                       id="fullName"
                       placeholder="Ada Lovelace"
@@ -281,16 +269,16 @@ const SettingsPage: React.FC = () => {
                     />
                   </div>
                   {errors.fullName && (
-                    <p className="mt-1 text-sm text-red-600">
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                       {errors.fullName.message}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <FieldLabel htmlFor="email">Email Address</FieldLabel>
+                  <FieldLabel htmlFor="email">Email</FieldLabel>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
+                    <Mail className="absolute left-3 top-3.5 h-4 w-4 text-muted" />
                     <Input
                       id="email"
                       type="email"
@@ -300,7 +288,7 @@ const SettingsPage: React.FC = () => {
                     />
                   </div>
                   {errors.email && (
-                    <p className="mt-1 text-sm text-red-600">
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                       {errors.email.message}
                     </p>
                   )}
@@ -309,7 +297,7 @@ const SettingsPage: React.FC = () => {
                 <div className="md:col-span-2">
                   <FieldLabel htmlFor="bio">Bio</FieldLabel>
                   <div className="relative">
-                    <Quote className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
+                    <Quote className="absolute left-3 top-3.5 h-4 w-4 text-muted" />
                     <Textarea
                       id="bio"
                       rows={3}
@@ -319,114 +307,72 @@ const SettingsPage: React.FC = () => {
                     />
                   </div>
                   {errors.bio && (
-                    <p className="mt-1 text-sm text-red-600">
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                       {errors.bio.message}
                     </p>
                   )}
                 </div>
               </div>
-            </Card>
+            </SettingsCard>
           </div>
         )}
 
-        {/* PREFERENCES TAB */}
         {activeTab === "preferences" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card
+            <SettingsCard
               title="Privacy"
               description="Control how your profile appears."
               className="lg:col-span-1"
             >
-              <label className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-blue-600" />
-                  <div>
-                    <p className="font-medium text-gray-900">Private profile</p>
-                    <p className="text-xs text-gray-500">
-                      Hide your profile from public pages.
-                    </p>
-                  </div>
-                </div>
-                <input
-                  type="checkbox"
-                  className="h-5 w-5"
-                  {...register("profilePrivate")}
-                />
-              </label>
-            </Card>
+              <ToggleRow
+                icon={<Shield className="w-5 h-5 text-travel-600 dark:text-travel-400" />}
+                title="Private profile"
+                description="Hide your profile from public pages."
+                register={register}
+                name="profilePrivate"
+              />
+            </SettingsCard>
 
-            <Card
+            <SettingsCard
               title="Notifications"
               description="Choose how we keep in touch."
               className="lg:col-span-2"
             >
               <div className="space-y-3">
-                <label className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <Bell className="w-5 h-5 text-blue-600" />
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        Push notifications
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Recommendations & updates on the go.
-                      </p>
-                    </div>
-                  </div>
-                  <input
-                    type="checkbox"
-                    className="h-5 w-5"
-                    {...register("push")}
-                  />
-                </label>
-
-                <label className="flex items-center justify-between rounded-xl border border-gray-200 px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <Send className="w-5 h-5 text-blue-600" />
-                    <div>
-                      <p className="font-medium text-gray-900">Email updates</p>
-                      <p className="text-xs text-gray-500">
-                        Occasional tips and deals.
-                      </p>
-                    </div>
-                  </div>
-                  <input
-                    type="checkbox"
-                    className="h-5 w-5"
-                    {...register("newsletter")}
-                  />
-                </label>
+                <ToggleRow
+                  icon={<Bell className="w-5 h-5 text-travel-600 dark:text-travel-400" />}
+                  title="Push notifications"
+                  description="Recommendations & updates on the go."
+                  register={register}
+                  name="push"
+                />
+                <ToggleRow
+                  icon={<Send className="w-5 h-5 text-travel-600 dark:text-travel-400" />}
+                  title="Email updates"
+                  description="Occasional tips and deals."
+                  register={register}
+                  name="newsletter"
+                />
               </div>
-            </Card>
+            </SettingsCard>
 
-            <Card
+            <SettingsCard
               title="Account"
               description="Security & critical actions."
               className="lg:col-span-3"
             >
               <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 hover:bg-gray-50"
-                  // TODO: open change password modal → sendPasswordResetEmail(auth, email)
-                >
-                  Change Password
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-xl border border-red-200 text-red-600 px-4 py-2 hover:bg-red-50"
-                  // TODO: open confirm delete modal → delete user from Firebase
-                >
+                <Button type="button" variant="secondary">
+                  Change password
+                </Button>
+                <Button type="button" variant="danger">
                   <Trash2 className="w-4 h-4" />
-                  Delete Account
-                </button>
+                  Delete account
+                </Button>
               </div>
-            </Card>
+            </SettingsCard>
           </div>
         )}
-
-        {/* Mobile Save button */}
-        <div className="md:hidden">{headerActions}</div>
       </form>
     </div>
   );

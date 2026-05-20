@@ -4,138 +4,150 @@ import {
   Settings,
   History,
   LogOut,
-  MapPinIcon,
+  MapPin,
   ChevronLeft,
   ChevronRight,
   Menu,
   X,
 } from "lucide-react";
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation } from "react-router-dom";
+import { ThemeToggle } from "../ui/ThemeToggle";
 
 interface Props {
   onLogout: () => void;
 }
+
+const menuItems = [
+  { label: "Recommendations", icon: History, href: "/recommendations" },
+  { label: "Take Survey", icon: ListChecks, href: "/survey" },
+  { label: "Explore", icon: Search, href: "/explore" },
+  { label: "Settings", icon: Settings, href: "/settings" },
+];
 
 const Sidebar: React.FC<Props> = ({ onLogout }) => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  const menuItems = [
-    { label: "Recommendations", icon: History, href: "/recommendations" },
-    { label: "Take Survey", icon: ListChecks, href: "/survey" },
-    { label: "Explore Destinations", icon: Search, href: "/explore" },
-    {
-      label: "Settings & Profile",
-      icon: Settings,
-      href: "/settings",
-    },
-  ];
+  const closeMobile = () => setIsMobileOpen(false);
+
+  const navLinkClass = (href: string) => {
+    const isActive = location.pathname === href;
+    return `flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ${
+      isActive
+        ? "bg-accent-soft text-travel-700 dark:text-travel-300 font-semibold shadow-sm"
+        : "text-secondary hover:bg-surface-muted hover:text-primary"
+    } ${isCollapsed ? "justify-center" : ""}`;
+  };
 
   return (
     <>
-      {/* Mobile Top Bar */}
-      <div className="lg:hidden p-1 border-b bg-white shadow-sm sticky top-0 z-40">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 bg-surface-sidebar border-b border-default">
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="p-2 rounded-lg hover:bg-gray-100"
+          className="p-2 rounded-xl hover:bg-surface-muted text-primary transition-colors"
+          aria-label="Open menu"
         >
-          <Menu size={24} />
+          <Menu size={22} />
         </button>
-        <div className="flex items-center space-x-2">
-          {/* <MapPinIcon className="h-6 w-6 text-blue-500" /> */}
-          {/* <span className="font-bold text-xl text-blue-700">Travely</span> */}
+        <div className="flex items-center gap-2">
+          <MapPin className="h-5 w-5 text-travel-600 dark:text-travel-400" />
+          <span className="font-bold text-lg text-primary tracking-tight">
+            Travely
+          </span>
         </div>
+        <div className="w-10" />
       </div>
 
-      {/* Backdrop for Mobile */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
-          onClick={() => setIsMobileOpen(false)}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+          onClick={closeMobile}
+          aria-hidden
         />
       )}
 
-      {/* Sidebar */}
       <aside
-        className={`bg-blue-50 border-r border-blue-100 h-screen flex flex-col shadow-lg
-          ${isCollapsed ? "w-20" : "w-64"}
+        className={`bg-surface-sidebar border-r border-default h-screen flex flex-col
+          ${isCollapsed ? "w-[72px]" : "w-64"}
           fixed lg:static top-0 left-0 z-50
-          transform transition-transform duration-300 ease-in-out
-          ${
-            isMobileOpen
-              ? "translate-x-0"
-              : "-translate-x-full lg:translate-x-0"
-          }`}
+          transform transition-all duration-300 ease-out
+          ${isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+          shadow-elevated lg:shadow-none`}
       >
-        {/* Header */}
         <div
-          className={`${
-            isCollapsed ? "flex-col space-y-1" : ""
-          } flex justify-between items-center p-4 border-b`}
+          className={`flex items-center p-4 border-b border-default ${
+            isCollapsed ? "flex-col gap-2" : "justify-between"
+          }`}
         >
-          <div className="flex items-center space-x-2">
-            <MapPinIcon
-              className={`${isCollapsed ? "" : "h-7 w-7"} text-blue-500`}
-            />
+          <div
+            className={`flex items-center gap-2.5 ${isCollapsed ? "justify-center" : ""}`}
+          >
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-travel-500 to-travel-700 flex items-center justify-center shadow-sm shrink-0">
+              <MapPin className="w-5 h-5 text-white" />
+            </div>
             {!isCollapsed && (
-              <div className="text-blue-700 font-bold text-2xl">Travely</div>
+              <div>
+                <div className="font-bold text-lg text-primary tracking-tight leading-none">
+                  Travely
+                </div>
+                <div className="text-[10px] text-muted font-medium uppercase tracking-wider mt-0.5">
+                  Nigeria
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Collapse Button (Desktop) */}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 rounded hover:bg-gray-200 hidden lg:block"
+            className="p-1.5 rounded-lg hover:bg-surface-muted text-muted hidden lg:block transition-colors"
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? (
-              <ChevronRight size={20} />
+              <ChevronRight size={18} />
             ) : (
-              <ChevronLeft size={20} />
+              <ChevronLeft size={18} />
             )}
           </button>
 
-          {/* Close Button (Mobile) */}
           <button
-            onClick={() => setIsMobileOpen(false)}
-            className="p-2 rounded hover:bg-gray-200 lg:hidden"
+            onClick={closeMobile}
+            className="p-1.5 rounded-lg hover:bg-surface-muted text-muted lg:hidden transition-colors"
+            aria-label="Close menu"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-1">
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {menuItems.map(({ label, icon: Icon, href }) => (
             <Link
-              key={label}
+              key={href}
               to={href}
-              className={`flex items-center gap-3 p-3 rounded-lg transition
-                ${
-                  location.pathname === href
-                    ? "bg-blue-100 text-blue-700 font-semibold"
-                    : "text-gray-700 hover:bg-blue-100"
-                }`}
-              onClick={() => setIsMobileOpen(false)}
+              className={navLinkClass(href)}
+              onClick={closeMobile}
+              title={isCollapsed ? label : undefined}
             >
-              <Icon className="w-5 h-5 text-gray-600" />
-              {!isCollapsed && <span>{label}</span>}
+              <Icon className="w-5 h-5 shrink-0" />
+              {!isCollapsed && <span className="text-sm">{label}</span>}
             </Link>
           ))}
         </nav>
 
-        {/* Logout */}
-        <div className="p-4 border-t">
+        <div className="px-3 py-2 border-t border-default space-y-1">
+          <ThemeToggle collapsed={isCollapsed} />
           <button
             onClick={() => {
               onLogout();
-              setIsMobileOpen(false);
+              closeMobile();
             }}
-            className="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-red-50 transition text-red-600"
+            className={`flex items-center gap-3 w-full p-3 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors ${
+              isCollapsed ? "justify-center" : ""
+            }`}
           >
-            <LogOut className="w-5 h-5" />
-            {!isCollapsed && <span>Logout</span>}
+            <LogOut className="w-5 h-5 shrink-0" />
+            {!isCollapsed && <span className="text-sm font-medium">Logout</span>}
           </button>
         </div>
       </aside>

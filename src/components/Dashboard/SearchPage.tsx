@@ -1,29 +1,39 @@
-import { Link } from "react-router-dom";
+import { Compass, Sparkles } from "lucide-react";
+import { ButtonLink } from "../ui/Button";
+import { Card } from "../ui/Card";
 
 const SearchPage = () => {
   return (
-    <div className="max-h-screen flex flex-col items-center justify-center px-4">
-      <img
-        src="/Trip-rafiki.svg"
-        alt="Travel illustration"
-        className="w-72 md:w-96 mb-6"
-      />
+    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+      <Card className="max-w-lg w-full text-center" padding="lg">
+        <div className="mx-auto w-20 h-20 rounded-2xl bg-accent-soft flex items-center justify-center mb-6">
+          <Compass className="w-10 h-10 text-travel-600 dark:text-travel-400 animate-pulse" />
+        </div>
 
-      <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-        Coming Soon
-      </h1>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-soft text-travel-700 dark:text-travel-300 text-xs font-medium mb-4">
+          <Sparkles className="w-3.5 h-3.5" />
+          Coming soon
+        </div>
 
-      <p className="text-gray-600 text-center max-w-md mb-6">
-        We’re preparing something exciting to help you discover destinations
-        better.
-      </p>
+        <h1 className="text-2xl md:text-3xl font-bold text-primary mb-3 tracking-tight">
+          Explore is on the way
+        </h1>
 
-      <Link
-        to="/recommendations"
-        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
-      >
-        Return to Recommendations
-      </Link>
+        <p className="text-secondary text-sm leading-relaxed mb-8 max-w-sm mx-auto">
+          We&apos;re building a richer discovery experience so you can browse
+          destinations, compare regions, and plan your next Nigerian adventure.
+        </p>
+
+        <img
+          src="/Trip-rafiki.svg"
+          alt="Travel illustration"
+          className="w-56 md:w-64 mx-auto mb-8 opacity-90 dark:opacity-80"
+        />
+
+        <ButtonLink to="/recommendations" variant="primary" size="lg">
+          Back to recommendations
+        </ButtonLink>
+      </Card>
     </div>
   );
 };

@@ -16,6 +16,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase/firebase";
 import DashboardLayout from "./components/Dashboard/DashboardLayout";
+import { isDashboardPath } from "./context/ThemeContext";
 import SearchPage from "./components/Dashboard/SearchPage";
 import SettingsPage from "./components/Dashboard/Settings";
 
@@ -26,15 +27,17 @@ const AppContent: React.FC<{
   onLogout: () => void;
 }> = ({ isAuthenticated, onLogin, onLogout }) => {
   const location = useLocation();
-  const isAuthOrDashboardPage =
-    location.pathname === "/auth" ||
-    location.pathname.startsWith("/recommendations") ||
-    location.pathname.startsWith("/survey") ||
-    location.pathname.startsWith("/explore") ||
-    location.pathname.startsWith("/settings");
+  const isHome = location.pathname === "/";
+  const isAuthPage = location.pathname === "/auth";
+  const isDashboard = isDashboardPath(location.pathname);
+  const isAuthOrDashboardPage = isAuthPage || isDashboard;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div
+      className={`flex flex-col min-h-screen ${
+        isDashboard ? "bg-surface-base" : "bg-gray-50"
+      }`}
+    >
       <div className="flex justify-end lg:justify-center">
         <Toaster reverseOrder={false} />
       </div>
@@ -42,7 +45,11 @@ const AppContent: React.FC<{
         <Navbar isAuthenticated={isAuthenticated} onLogout={onLogout} />
       )}
 
-      <main className={`flex-grow ${isAuthOrDashboardPage ? "" : "pt-20"}`}>
+      <main
+        className={`flex-grow ${
+          isAuthOrDashboardPage ? "" : isHome ? "" : "pt-20"
+        }`}
+      >
         <Routes>
           <Route path="/" element={<Home />} />
           <Route
@@ -90,8 +97,8 @@ const App: React.FC = () => {
       await signOut(auth);
       setIsAuthenticated(false);
       console.log("user signed out sucessfully");
-    } catch (error) {
-      toast.error("Error signing out:");
+    } catch {
+      toast.error("Error signing out");
     }
   };
 
@@ -106,7 +113,7 @@ const App: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-screen bg-gray-50">
         <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-500"></div>
       </div>
     );

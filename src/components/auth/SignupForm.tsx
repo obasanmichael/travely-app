@@ -7,6 +7,7 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { auth } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
+import { authInputClass } from "./authInputStyles";
 // import { data } from "react-router-dom";
 
 const signupSchema = z
@@ -47,12 +48,16 @@ const SignupForm = () => {
       }
       toast.success("Signup successful! Redirecting...");
       navigate("/recommendations");
-    } catch (error: any) {
-      if (error.code === "auth/email-already-in-use") {
+    } catch (error: unknown) {
+      const code =
+        error && typeof error === "object" && "code" in error
+          ? String((error as { code: string }).code)
+          : "";
+      if (code === "auth/email-already-in-use") {
         toast.error(
           "This email is already registered. Please use another email."
         );
-      } else if (error.code === "auth/invalid-email") {
+      } else if (code === "auth/invalid-email") {
         toast.error("Invalid email address.");
       } else {
         toast.error("Something went wrong. Please try again.");
@@ -74,8 +79,9 @@ const SignupForm = () => {
         <input
           id="fullName"
           type="text"
+          autoComplete="name"
           {...register("fullName")}
-          className="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+          className={authInputClass}
           placeholder="Tolulope Michael"
           required
         />
@@ -93,8 +99,9 @@ const SignupForm = () => {
         <input
           id="email"
           type="email"
+          autoComplete="email"
           {...register("email")}
-          className="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+          className={authInputClass}
           placeholder="your_name@example.com"
           required
         />
@@ -111,9 +118,9 @@ const SignupForm = () => {
           <input
             id="password"
             type={showPassword ? "text" : "password"}
+            autoComplete="new-password"
             {...register("password")}
-            // onChange={handlePasswordChange}
-            className="block w-full px-4 py-3 pr-10 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+            className={`${authInputClass} pr-10`}
             placeholder="••••••••"
             required
           />
@@ -144,8 +151,9 @@ const SignupForm = () => {
           <input
             id="confirmPassword"
             type={showPassword ? "text" : "password"}
+            autoComplete="new-password"
             {...register("confirmPassword")}
-            className="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+            className={authInputClass}
             placeholder="••••••••"
             required
           />

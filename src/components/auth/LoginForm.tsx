@@ -7,6 +7,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { authInputClass } from "./authInputStyles";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid Email Address"),
@@ -31,12 +32,16 @@ const LoginForm = () => {
       await signInWithEmailAndPassword(auth, data.email, data.password);
       toast.success("Signin successful! Redirecting...");
       navigate("/recommendations");
-    } catch (error: any) {
-      if (error.code === "auth/invalid-email") {
+    } catch (error: unknown) {
+      const code =
+        error && typeof error === "object" && "code" in error
+          ? String((error as { code: string }).code)
+          : "";
+      if (code === "auth/invalid-email") {
         toast.error("Invalid email address.");
-      } else if (error.code === "auth/user-not-found") {
+      } else if (code === "auth/user-not-found") {
         toast.error("No account found with this email.");
-      } else if (error.code === "auth/wrong-password") {
+      } else if (code === "auth/wrong-password") {
         toast.error("Incorrect password.");
       } else {
         toast.error("Something went wrong. Please try again.");
@@ -58,8 +63,9 @@ const LoginForm = () => {
           <input
             id="email"
             type="email"
+            autoComplete="email"
             {...register("email")}
-            className="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+            className={authInputClass}
             placeholder="name@example.com"
             required
           />
@@ -79,8 +85,9 @@ const LoginForm = () => {
           <input
             id="password"
             type={showPassword ? "text" : "password"}
+            autoComplete="current-password"
             {...register("password")}
-            className="block w-full px-4 py-3 pr-10 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+            className={`${authInputClass} pr-10`}
             placeholder="••••••••"
             required
           />
