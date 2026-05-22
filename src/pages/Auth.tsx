@@ -4,11 +4,7 @@ import SignupForm from "../components/auth/SignupForm";
 import { BrandLogo } from "../components/ui/BrandLogo";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
 
-interface AuthProps {
-  onLogin: () => void;
-}
-
-const Auth: React.FC<AuthProps> = () => {
+const Auth: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
 
   return (
@@ -23,7 +19,6 @@ const Auth: React.FC<AuthProps> = () => {
         </div>
 
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 bg-surface-raised rounded-2xl overflow-hidden shadow-elevated border border-default">
-          {/* Left side - Image */}
           <div className="hidden lg:block relative">
             <div
               className="absolute inset-0 bg-cover bg-center"
@@ -77,7 +72,6 @@ const Auth: React.FC<AuthProps> = () => {
             </div>
           </div>
 
-          {/* Right side - Auth Forms */}
           <div className="py-12 px-5 md:px-12">
             <div className="text-center mb-10">
               <h1 className="text-3xl font-bold text-primary">
@@ -88,7 +82,6 @@ const Auth: React.FC<AuthProps> = () => {
               </p>
             </div>
 
-            {/* Tabs */}
             <div className="flex border-b border-default mb-8">
               <button
                 className={`flex-1 py-3 font-medium text-center transition-colors ${
@@ -112,7 +105,6 @@ const Auth: React.FC<AuthProps> = () => {
               </button>
             </div>
 
-            {/* Forms */}
             <div className="mt-6">
               {activeTab === "login" ? <LoginForm /> : <SignupForm />}
             </div>

@@ -9,7 +9,7 @@ import RecommendationsContainer from "./RecommendationsContainer";
 
 const Dashboard: React.FC = () => {
   const { userName, loading: userLoading } = useDashboardUser();
-  const { data, hasRecommendations, loading: recLoading } =
+  const { data, hasRecommendations, loading: recLoading, error } =
     useRecommendations();
 
   const loading = userLoading || recLoading;
@@ -18,6 +18,15 @@ const Dashboard: React.FC = () => {
     return (
       <div className="flex justify-center items-center min-h-[320px]">
         <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <WelcomeHero userName={userName} hasRecommendations={false} />
+        <EmptyRecommendations message={error} />
       </div>
     );
   }

@@ -12,3 +12,21 @@ export function parseActivities(activities: string): string[] {
     .map((a) => a.trim())
     .filter(Boolean);
 }
+
+export function formatRunDate(value: unknown): string {
+  if (!value) return "Unknown date";
+  if (typeof value === "object" && value !== null && "toDate" in value) {
+    const date = (value as { toDate: () => Date }).toDate();
+    return date.toLocaleString(undefined, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  }
+  if (value instanceof Date) {
+    return value.toLocaleString(undefined, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  }
+  return String(value);
+}

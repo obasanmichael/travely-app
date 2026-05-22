@@ -4,107 +4,121 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  sendPasswordResetEmail,
+  updateProfile,
   User as FirebaseUser,
 } from "firebase/auth";
-import { auth, db } from "../firebase/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth } from "../firebase/firebase";
+import { getUserDocument } from "../firebase/firestore";
+import { ensureUserDocument } from "../services/userService";
+import { clearUserLocalData } from "../lib/clientStorage";
 
-// Define the extended shape of your user context
 interface User extends FirebaseUser {
   hasCompletedOnboarding: boolean;
 }
 
-// Define the shape of your auth context
 interface AuthContextType {
   user: User | null;
-  loading: boolean; // Add loading state
-  signup: (email: string, password: string) => Promise<void>;
+  loading: boolean;
+  signup: (
+    email: string,
+    password: string,
+    displayName?: string
+  ) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
-// Create the context with an initial placeholder
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  loading: true, // Set loading to true initially
+  loading: true,
   signup: async () => {},
   login: async () => {},
   logout: async () => {},
+  resetPassword: async () => {},
+  refreshUser: async () => {},
 });
 
-// Export a hook to use this context easily
 export const useAuth = () => useContext(AuthContext);
 
-// The provider component
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true); // Initialize loading state
+  const [loading, setLoading] = useState(true);
 
-  // Keep track of the currently signed-in user
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        // Fetch user data from Firestore
-        const userRef = doc(db, "users", currentUser.uid);
-        const docSnap = await getDoc(userRef);
-
-        // If user document doesn't exist in Firestore yet, create it
-        if (!docSnap.exists()) {
-          await setDoc(userRef, {
-            uid: currentUser.uid,
-            email: currentUser.email,
-            createdAt: new Date(),
-            hasCompletedOnboarding: false, // Add this field to Firestore
-          });
-        } else {
-          const userData = docSnap.data();
-          // Set user with custom fields, including 'hasCompletedOnboarding'
-          setUser({
-            ...currentUser,
-            hasCompletedOnboarding: userData?.hasCompletedOnboarding || false,
-          });
-        }
+        const userDoc = await ensureUserDocument(
+          currentUser.uid,
+          currentUser.email,
+          currentUser.displayName
+        );
+        setUser({
+          ...currentUser,
+          hasCompletedOnboarding: userDoc.hasCompletedOnboarding ?? false,
+        });
       } else {
         setUser(null);
       }
-      setLoading(false); // Set loading to false after authentication state is determined
+      setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  // Signup method
-  const signup = async (email: string, password: string) => {
+  const signup = async (
+    email: string,
+    password: string,
+    displayName?: string
+  ) => {
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
       password
     );
-    const user = userCredential.user;
-
-    // Create user document in Firestore with 'hasCompletedOnboarding' as false
-    await setDoc(doc(db, "users", user.uid), {
-      uid: user.uid,
-      email: user.email,
-      createdAt: new Date(),
-      hasCompletedOnboarding: false, // Add this field to Firestore
-    });
+    if (displayName) {
+      await updateProfile(userCredential.user, { displayName });
+    }
+    await ensureUserDocument(
+      userCredential.user.uid,
+      userCredential.user.email,
+      displayName ?? null
+    );
   };
 
-  // Login method
   const login = async (email: string, password: string) => {
     await signInWithEmailAndPassword(auth, email, password);
   };
 
-  // Logout method
   const logout = async () => {
+    clearUserLocalData();
     await signOut(auth);
   };
 
+  const resetPassword = async (email: string) => {
+    await sendPasswordResetEmail(auth, email);
+  };
+
+  const refreshUser = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+    const userDoc = await getUserDocument(currentUser.uid);
+    if (userDoc) {
+      setUser({
+        ...currentUser,
+        hasCompletedOnboarding: userDoc.hasCompletedOnboarding ?? false,
+      });
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, signup, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, signup, login, logout, resetPassword, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

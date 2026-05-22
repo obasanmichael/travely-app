@@ -3,12 +3,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { auth } from "../../firebase/firebase";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import { authInputClass } from "./authInputStyles";
-// import { data } from "react-router-dom";
 
 const signupSchema = z
   .object({
@@ -28,6 +26,7 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 
 const SignupForm = () => {
   const navigate = useNavigate();
+  const { signup } = useAuth();
   const {
     register,
     handleSubmit,
@@ -39,13 +38,7 @@ const SignupForm = () => {
   const onSubmit = async (data: SignupFormValues) => {
     setIsLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, data.email, data.password);
-
-      if (auth.currentUser) {
-        await updateProfile(auth.currentUser, {
-          displayName: data.fullName,
-        });
-      }
+      await signup(data.email, data.password, data.fullName);
       toast.success("Signup successful! Redirecting...");
       navigate("/recommendations");
     } catch (error: unknown) {
@@ -189,57 +182,6 @@ const SignupForm = () => {
       >
         {isLoading ? "Creating account..." : "Create account"}
       </button>
-      <div className="mt-6">
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-default"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-surface-raised text-muted">Or sign up with</span>
-          </div>
-        </div>
-        <div className="mt-6 grid grid-cols-3 gap-3">
-          <button
-            type="button"
-            className="w-full py-2.5 px-4 border border-default rounded-lg shadow-sm bg-surface-raised text-sm font-medium text-secondary hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-travel-500 dark:focus:ring-offset-slate-900"
-          >
-            <svg
-              className="h-5 w-5 mx-auto"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            className="w-full py-2.5 px-4 border border-default rounded-lg shadow-sm bg-surface-raised text-sm font-medium text-secondary hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-travel-500 dark:focus:ring-offset-slate-900"
-          >
-            <svg
-              className="h-5 w-5 mx-auto"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2.917 16.083c-2.258 0-4.083-1.825-4.083-4.083s1.825-4.083 4.083-4.083c1.103 0 2.024.402 2.735 1.067l-1.107 1.068c-.304-.292-.834-.63-1.628-.63-1.394 0-2.531 1.155-2.531 2.579 0 1.424 1.138 2.579 2.531 2.579 1.616 0 2.224-1.162 2.316-1.762h-2.316v-1.4h3.855c.036.204.064.408.064.677.001 2.332-1.563 3.988-3.919 3.988zm9.917-3.5h-1.75v1.75h-1.167v-1.75h-1.75v-1.166h1.75v-1.75h1.167v1.75h1.75v1.166z" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            className="w-full py-2.5 px-4 border border-default rounded-lg shadow-sm bg-surface-raised text-sm font-medium text-secondary hover:bg-surface-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-travel-500 dark:focus:ring-offset-slate-900"
-          >
-            <svg
-              className="h-5 w-5 mx-auto"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2.917 16.083c-2.258 0-4.083-1.825-4.083-4.083s1.825-4.083 4.083-4.083c1.103 0 2.024.402 2.735 1.067l-1.107 1.068c-.304-.292-.834-.63-1.628-.63-1.394 0-2.531 1.155-2.531 2.579 0 1.424 1.138 2.579 2.531 2.579 1.616 0 2.224-1.162 2.316-1.762h-2.316v-1.4h3.855c.036.204.064.408.064.677.001 2.332-1.563 3.988-3.919 3.988zm9.917-3.5h-1.75v1.75h-1.167v-1.75h-1.75v-1.166h1.75v-1.75h1.167v1.75h1.75v1.166z" />
-            </svg>
-          </button>
-        </div>
-      </div>
     </form>
   );
 };

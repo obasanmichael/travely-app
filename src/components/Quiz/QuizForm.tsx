@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { saveUserPreferences } from "../../firebase/firebase";
-import { getRecommendations } from "../../utils/api";
+import toast from "react-hot-toast";
+import { useAuth } from "../../context/AuthContext";
+import { submitQuizAndGetRecommendations } from "../../services/recommendationService";
 import ProgressBar from "./ProgressBar";
 import { Button } from "../ui/Button";
 import {
@@ -73,6 +74,7 @@ const getBudgetExamples = (category: string): string => {
 
 const QuizForm: React.FC = () => {
   const navigate = useNavigate();
+  const { user, refreshUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [budgetCategory, setBudgetCategory] = useState("");
@@ -284,6 +286,10 @@ const QuizForm: React.FC = () => {
   ];
 
   const goToNextStep = () => {
+    if (currentStep === 1 && !formData.destination_type) {
+      toast.error("Please select a destination type.");
+      return;
+    }
     if (currentStep < quizSteps.length - 1) {
       setCurrentStep((prev) => prev + 1);
     }
@@ -297,19 +303,30 @@ const QuizForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.destination_type) {
+      toast.error("Please select a destination type.");
+      return;
+    }
+    if (!formData.activity_type) {
+      toast.error("Please select an activity type.");
+      return;
+    }
+    if (!user) {
+      toast.error("You must be logged in to submit the quiz.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await saveUserPreferences(formData);
-      const recommendations = await getRecommendations(formData);
-      localStorage.setItem(
-        "travelRecommendations",
-        JSON.stringify(recommendations)
-      );
+      await submitQuizAndGetRecommendations(user.uid, formData);
+      await refreshUser();
+      toast.success("Recommendations ready!");
       navigate("/recommendations");
     } catch (error) {
       console.error("Error submitting quiz:", error);
-      alert("There was an error processing your quiz. Please try again.");
+      toast.error("Could not get recommendations. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -354,7 +371,11 @@ const QuizForm: React.FC = () => {
             <Button
               type="button"
               onClick={handleSubmit}
-              disabled={isSubmitting || !formData.activity_type}
+              disabled={
+                isSubmitting ||
+                !formData.destination_type ||
+                !formData.activity_type
+              }
               className="sm:min-w-[180px]"
             >
               {isSubmitting ? "Submitting..." : "Get recommendations"}

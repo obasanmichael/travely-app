@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { getCurrentUser } from "../firebase/firebase";
+import { useAuth } from "../context/AuthContext";
 
 interface UseDashboardUserResult {
   userName: string | null;
@@ -7,32 +6,10 @@ interface UseDashboardUserResult {
 }
 
 export function useDashboardUser(): UseDashboardUserResult {
-  const [userName, setUserName] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    let cancelled = false;
+  const userName =
+    user?.displayName || user?.email?.split("@")[0] || "Traveler";
 
-    const load = async () => {
-      try {
-        const user = await getCurrentUser();
-        if (!cancelled && user) {
-          setUserName(
-            user.displayName || user.email?.split("@")[0] || "Traveler"
-          );
-        }
-      } catch (error) {
-        console.error("Error loading user:", error);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return { userName, loading };
+  return { userName: user ? userName : null, loading };
 }

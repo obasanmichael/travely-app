@@ -3,6 +3,7 @@ import {
   Search,
   Settings,
   History,
+  Clock,
   LogOut,
   MapPin,
   ChevronLeft,
@@ -20,6 +21,7 @@ interface Props {
 
 const menuItems = [
   { label: "Recommendations", icon: History, href: "/recommendations" },
+  { label: "History", icon: Clock, href: "/history" },
   { label: "Take Survey", icon: ListChecks, href: "/survey" },
   { label: "Explore", icon: Search, href: "/explore" },
   { label: "Settings", icon: Settings, href: "/settings" },
@@ -33,7 +35,9 @@ const Sidebar: React.FC<Props> = ({ onLogout }) => {
   const closeMobile = () => setIsMobileOpen(false);
 
   const navLinkClass = (href: string) => {
-    const isActive = location.pathname === href;
+    const isActive =
+      location.pathname === href ||
+      (href === "/history" && location.pathname.startsWith("/history"));
     return `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
       isActive
         ? "bg-accent-soft text-travel-700 dark:text-travel-300 font-semibold"

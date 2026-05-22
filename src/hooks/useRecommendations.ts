@@ -1,106 +1,65 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
+import { getLatestRecommendationRun } from "../firebase/firestore";
+import {
+  getCachedRecommendations,
+  runToResponse,
+} from "../services/recommendationService";
 import type { RecommendationResponse } from "../components/types/types";
-
-const STORAGE_KEY = "travelRecommendations";
-
-interface UseRecommendationsOptions {
-  fetchOnMount?: boolean;
-}
 
 interface UseRecommendationsResult {
   data: RecommendationResponse | null;
   hasRecommendations: boolean;
   loading: boolean;
   error: string | null;
+  refresh: () => Promise<void>;
 }
 
-export function useRecommendations(
-  options: UseRecommendationsOptions = {}
-): UseRecommendationsResult {
-  const { fetchOnMount = false } = options;
+export function useRecommendations(): UseRecommendationsResult {
+  const { user } = useAuth();
   const [data, setData] = useState<RecommendationResponse | null>(null);
-  const [loading, setLoading] = useState(fetchOnMount);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        setData(JSON.parse(saved));
-      } catch {
-        localStorage.removeItem(STORAGE_KEY);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!fetchOnMount) return;
-
-    let cancelled = false;
-
-    const fetch = async () => {
-      setError(null);
-
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          if (!cancelled) setData(JSON.parse(saved));
-        } catch {
-          localStorage.removeItem(STORAGE_KEY);
-        } finally {
-          if (!cancelled) setLoading(false);
-        }
+  const load = async (uid: string) => {
+    setError(null);
+    setLoading(true);
+    try {
+      const latestRun = await getLatestRecommendationRun(uid);
+      if (latestRun) {
+        const response = runToResponse(latestRun);
+        setData(response);
         return;
       }
 
-      setLoading(true);
+      const cached = getCachedRecommendations(uid);
+      setData(cached);
+    } catch (err) {
+      console.error("Error loading recommendations:", err);
+      setError("Failed to load recommendations.");
+      toast.error("Failed to load recommendations.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      try {
+  useEffect(() => {
+    if (!user) {
+      setData(null);
+      setLoading(false);
+      return;
+    }
+    load(user.uid);
+  }, [user?.uid]);
 
-        const response = await axios.post<RecommendationResponse>(
-          "http://localhost:8000/recommendations",
-          {
-            budget: 20000,
-            destination_type: "Nature/Adventure",
-            activity_type: "Hiking",
-          }
-        );
-
-        if (!cancelled) {
-          setData(response.data);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(response.data));
-        }
-      } catch (err) {
-        console.error("Error fetching recommendations:", err);
-        if (!cancelled) {
-          setError("Failed to load recommendations. Please try again later.");
-          toast.error("Failed to load recommendations.");
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-
-    fetch();
-    return () => {
-      cancelled = true;
-    };
-  }, [fetchOnMount]);
+  const refresh = async () => {
+    if (!user) return;
+    await load(user.uid);
+  };
 
   const hasRecommendations =
     data !== null && data.recommendations.length > 0;
 
-  return { data, hasRecommendations, loading, error };
-}
-
-export function readStoredRecommendations(): RecommendationResponse | null {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (!saved) return null;
-  try {
-    return JSON.parse(saved);
-  } catch {
-    return null;
-  }
+  return { data, hasRecommendations, loading, error, refresh };
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import Sidebar from "./Sidebar";
 import { DashboardHeader } from "./DashboardHeader";
+import { EmailVerificationBanner } from "./EmailVerificationBanner";
 import { Outlet } from "react-router-dom";
 
 interface Props {
@@ -16,6 +17,7 @@ const DashboardLayout: React.FC<Props> = ({ onLogout }) => {
         <DashboardHeader />
         <main className="flex-1 min-h-0 overflow-y-auto px-6 md:px-8 lg:px-10 py-6 lg:py-8">
           <div className="max-w-6xl mx-auto w-full">
+            <EmailVerificationBanner />
             <Outlet />
           </div>
         </main>

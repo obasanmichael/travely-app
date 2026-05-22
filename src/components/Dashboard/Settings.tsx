@@ -1,9 +1,8 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Camera,
   Mail,
   User2,
   Quote,
@@ -14,9 +13,24 @@ import {
   Save,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import {
+  deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  updateProfile,
+} from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/Button";
 import { Card, CardHeader } from "../ui/Card";
 import { ThemeToggle } from "../ui/ThemeToggle";
+import { useAuth } from "../../context/AuthContext";
+import { auth } from "../../firebase/firebase";
+import {
+  deleteAccountData,
+  loadUserSettings,
+  saveUserSettings,
+} from "../../services/userService";
+import { Spinner } from "../ui/Spinner";
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name is too short"),
@@ -77,56 +91,6 @@ const SettingsCard: React.FC<{
   </Card>
 );
 
-const AvatarUploader: React.FC<{
-  value?: string | null;
-  onChange: (dataUrl: string) => void;
-}> = ({ value, onChange }) => {
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(value || null);
-
-  const handlePick = () => fileRef.current?.click();
-
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      setPreview(dataUrl);
-      onChange(dataUrl);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  return (
-    <div className="relative w-28 h-28">
-      <img
-        src={
-          preview ||
-          "https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=200&h=200&fit=crop&auto=format"
-        }
-        alt="Profile"
-        className="w-28 h-28 rounded-2xl object-cover border border-default shadow-card"
-      />
-      <button
-        type="button"
-        onClick={handlePick}
-        className="absolute -bottom-2 -right-2 inline-flex items-center justify-center rounded-xl bg-travel-600 text-white shadow-md hover:bg-travel-700 w-9 h-9 transition-colors"
-        aria-label="Change profile photo"
-      >
-        <Camera className="w-4 h-4" />
-      </button>
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleFile}
-      />
-    </div>
-  );
-};
-
 const ToggleRow: React.FC<{
   icon: React.ReactNode;
   title: string;
@@ -151,9 +115,20 @@ const ToggleRow: React.FC<{
 );
 
 const SettingsPage: React.FC = () => {
+  const { user, resetPassword, refreshUser } = useAuth();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<"profile" | "preferences">(
+    "profile"
+  );
+  const [pageLoading, setPageLoading] = useState(true);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting, isDirty },
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -167,15 +142,103 @@ const SettingsPage: React.FC = () => {
     },
   });
 
-  const [activeTab, setActiveTab] = useState<"profile" | "preferences">(
-    "profile"
-  );
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  useEffect(() => {
+    if (!user) {
+      setPageLoading(false);
+      return;
+    }
+
+    const load = async () => {
+      try {
+        const settings = await loadUserSettings(user.uid);
+        reset({
+          fullName:
+            settings?.displayName ||
+            user.displayName ||
+            user.email?.split("@")[0] ||
+            "",
+          email: settings?.email || user.email || "",
+          bio: settings?.bio ?? "",
+          newsletter: settings?.newsletter ?? true,
+          push: settings?.push ?? true,
+          profilePrivate: settings?.profilePrivate ?? false,
+        });
+      } catch {
+        toast.error("Failed to load settings.");
+      } finally {
+        setPageLoading(false);
+      }
+    };
+
+    load();
+  }, [user, reset]);
 
   const onSubmit = async (values: ProfileFormValues) => {
-    toast.success("Changes updated successfully");
-    await new Promise((r) => setTimeout(r, 600));
-    console.log("Save payload:", values);
+    if (!user) return;
+
+    try {
+      await saveUserSettings(user.uid, {
+        displayName: values.fullName,
+        email: values.email,
+        bio: values.bio,
+        newsletter: values.newsletter,
+        push: values.push,
+        profilePrivate: values.profilePrivate,
+      });
+
+      if (auth.currentUser && values.fullName !== auth.currentUser.displayName) {
+        await updateProfile(auth.currentUser, { displayName: values.fullName });
+      }
+
+      await refreshUser();
+      toast.success("Changes saved successfully");
+      reset(values);
+    } catch {
+      toast.error("Failed to save settings.");
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!user?.email) {
+      toast.error("No email on file for this account.");
+      return;
+    }
+    try {
+      await resetPassword(user.email);
+      toast.success("Password reset email sent.");
+    } catch {
+      toast.error("Could not send password reset email.");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user?.email || !auth.currentUser) return;
+    if (!deletePassword) {
+      toast.error("Enter your password to confirm deletion.");
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const credential = EmailAuthProvider.credential(user.email, deletePassword);
+      await reauthenticateWithCredential(auth.currentUser, credential);
+      await deleteAccountData(user.uid);
+      await deleteUser(auth.currentUser);
+      toast.success("Account deleted.");
+      navigate("/");
+    } catch (error: unknown) {
+      const code =
+        error && typeof error === "object" && "code" in error
+          ? String((error as { code: string }).code)
+          : "";
+      if (code === "auth/wrong-password") {
+        toast.error("Incorrect password.");
+      } else {
+        toast.error("Could not delete account. Please try again.");
+      }
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const tabClass = (tab: typeof activeTab) =>
@@ -184,6 +247,14 @@ const SettingsPage: React.FC = () => {
         ? "bg-travel-600 text-white shadow-sm dark:bg-travel-500"
         : "bg-surface-raised border border-default text-secondary hover:bg-surface-muted hover:text-primary"
     }`;
+
+  if (pageLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[320px]">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -234,87 +305,68 @@ const SettingsPage: React.FC = () => {
         className="space-y-6"
       >
         {activeTab === "profile" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <SettingsCard
-              title="Profile photo"
-              description="Your avatar across Travely."
-              className="lg:col-span-1"
-            >
-              <div className="flex items-center gap-4">
-                <AvatarUploader
-                  value={avatarPreview}
-                  onChange={(dataUrl) => {
-                    setAvatarPreview(dataUrl);
-                  }}
-                />
-                <p className="text-xs text-muted">PNG/JPG, up to 2MB. Square works best.</p>
+          <SettingsCard
+            title="Basic info"
+            description="Keep your details up to date."
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <FieldLabel htmlFor="fullName">Full name</FieldLabel>
+                <div className="relative">
+                  <User2 className="absolute left-3 top-3.5 h-4 w-4 text-muted" />
+                  <Input
+                    id="fullName"
+                    placeholder="Ada Lovelace"
+                    {...register("fullName")}
+                    className="pl-10"
+                  />
+                </div>
+                {errors.fullName && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {errors.fullName.message}
+                  </p>
+                )}
               </div>
-            </SettingsCard>
 
-            <SettingsCard
-              title="Basic info"
-              description="Keep your details up to date."
-              className="lg:col-span-2"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <FieldLabel htmlFor="fullName">Full name</FieldLabel>
-                  <div className="relative">
-                    <User2 className="absolute left-3 top-3.5 h-4 w-4 text-muted" />
-                    <Input
-                      id="fullName"
-                      placeholder="Ada Lovelace"
-                      {...register("fullName")}
-                      className="pl-10"
-                    />
-                  </div>
-                  {errors.fullName && (
-                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                      {errors.fullName.message}
-                    </p>
-                  )}
+              <div>
+                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3.5 h-4 w-4 text-muted" />
+                  <Input
+                    id="email"
+                    type="email"
+                    readOnly
+                    {...register("email")}
+                    className="pl-10 opacity-70"
+                  />
                 </div>
-
-                <div>
-                  <FieldLabel htmlFor="email">Email</FieldLabel>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3.5 h-4 w-4 text-muted" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      {...register("email")}
-                      className="pl-10"
-                    />
-                  </div>
-                  {errors.email && (
-                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="md:col-span-2">
-                  <FieldLabel htmlFor="bio">Bio</FieldLabel>
-                  <div className="relative">
-                    <Quote className="absolute left-3 top-3.5 h-4 w-4 text-muted" />
-                    <Textarea
-                      id="bio"
-                      rows={3}
-                      placeholder="A line about you…"
-                      {...register("bio")}
-                      className="pl-10"
-                    />
-                  </div>
-                  {errors.bio && (
-                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                      {errors.bio.message}
-                    </p>
-                  )}
-                </div>
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
-            </SettingsCard>
-          </div>
+
+              <div className="md:col-span-2">
+                <FieldLabel htmlFor="bio">Bio</FieldLabel>
+                <div className="relative">
+                  <Quote className="absolute left-3 top-3.5 h-4 w-4 text-muted" />
+                  <Textarea
+                    id="bio"
+                    rows={3}
+                    placeholder="A line about you…"
+                    {...register("bio")}
+                    className="pl-10"
+                  />
+                </div>
+                {errors.bio && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {errors.bio.message}
+                  </p>
+                )}
+              </div>
+            </div>
+          </SettingsCard>
         )}
 
         {activeTab === "preferences" && (
@@ -361,14 +413,55 @@ const SettingsPage: React.FC = () => {
               description="Security & critical actions."
               className="lg:col-span-3"
             >
-              <div className="flex flex-wrap gap-3">
-                <Button type="button" variant="secondary">
-                  Change password
-                </Button>
-                <Button type="button" variant="danger">
-                  <Trash2 className="w-4 h-4" />
-                  Delete account
-                </Button>
+              <div className="space-y-4">
+                <div className="flex flex-wrap gap-3">
+                  <Button type="button" variant="secondary" onClick={handleChangePassword}>
+                    Change password
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="danger"
+                    onClick={() => setShowDeleteConfirm((v) => !v)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete account
+                  </Button>
+                </div>
+
+                {showDeleteConfirm && (
+                  <div className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 p-4 space-y-3">
+                    <p className="text-sm text-secondary">
+                      This permanently deletes your profile, preferences, and
+                      recommendation history. Enter your password to confirm.
+                    </p>
+                    <Input
+                      type="password"
+                      placeholder="Your password"
+                      value={deletePassword}
+                      onChange={(e) => setDeletePassword(e.target.value)}
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="danger"
+                        disabled={isDeleting}
+                        onClick={handleDeleteAccount}
+                      >
+                        {isDeleting ? "Deleting…" : "Confirm delete"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => {
+                          setShowDeleteConfirm(false);
+                          setDeletePassword("");
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </SettingsCard>
           </div>

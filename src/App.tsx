@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -13,24 +13,38 @@ import Footer from "./components/Layout/Footer";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import toast, { Toaster } from "react-hot-toast";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "./firebase/firebase";
 import DashboardLayout from "./components/Dashboard/DashboardLayout";
 import { isDashboardPath } from "./context/ThemeContext";
+import { useAuth } from "./context/AuthContext";
+import HistoryPage from "./components/Dashboard/HistoryPage";
+import HistoryDetailPage from "./components/Dashboard/HistoryDetailPage";
 import SearchPage from "./components/Dashboard/SearchPage";
 import SettingsPage from "./components/Dashboard/Settings";
 
-// Wrapper component to use useLocation hook
-const AppContent: React.FC<{
-  isAuthenticated: boolean;
-  onLogin: () => void;
-  onLogout: () => void;
-}> = ({ isAuthenticated, onLogin, onLogout }) => {
+const AppContent: React.FC = () => {
+  const { user, loading, logout } = useAuth();
   const location = useLocation();
+  const isAuthenticated = !!user;
   const isHome = location.pathname === "/";
   const isAuthPage = location.pathname === "/auth";
   const isDashboard = isDashboardPath(location.pathname);
   const isAuthOrDashboardPage = isAuthPage || isDashboard;
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch {
+      toast.error("Error signing out");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-surface-base">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-travel-600 dark:border-travel-400"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-surface-base text-primary">
@@ -38,7 +52,7 @@ const AppContent: React.FC<{
         <Toaster reverseOrder={false} />
       </div>
       {!isAuthOrDashboardPage && (
-        <Navbar isAuthenticated={isAuthenticated} onLogout={onLogout} />
+        <Navbar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
       )}
 
       <main
@@ -54,22 +68,24 @@ const AppContent: React.FC<{
               isAuthenticated ? (
                 <Navigate to="/recommendations" />
               ) : (
-                <Auth onLogin={onLogin} />
+                <Auth />
               )
             }
           />
           <Route
             element={
               isAuthenticated ? (
-                <DashboardLayout onLogout={onLogout} />
+                <DashboardLayout onLogout={handleLogout} />
               ) : (
-                <Navigate to={"/auth"} />
+                <Navigate to="/auth" />
               )
             }
           >
             <Route path="/recommendations" element={<Dashboard />} />
             <Route path="survey" element={<QuizForm />} />
             <Route path="explore" element={<SearchPage />} />
+            <Route path="history" element={<HistoryPage />} />
+            <Route path="history/:runId" element={<HistoryDetailPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Routes>
@@ -81,46 +97,9 @@ const AppContent: React.FC<{
 };
 
 const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [loading, setLoading] = useState(true);
-
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-  };
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      setIsAuthenticated(false);
-      console.log("user signed out sucessfully");
-    } catch {
-      toast.error("Error signing out");
-    }
-  };
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAuthenticated(!!user);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-surface-base">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-travel-600 dark:border-travel-400"></div>
-      </div>
-    );
-  }
   return (
     <Router>
-      <AppContent
-        isAuthenticated={isAuthenticated}
-        onLogin={handleLogin}
-        onLogout={handleLogout}
-      />
+      <AppContent />
     </Router>
   );
 };
