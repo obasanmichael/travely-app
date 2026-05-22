@@ -4,6 +4,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  sendEmailVerification,
   sendPasswordResetEmail,
   updateProfile,
   User as FirebaseUser,
@@ -28,6 +29,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  sendVerificationEmail: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -38,6 +40,7 @@ const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   logout: async () => {},
   resetPassword: async () => {},
+  sendVerificationEmail: async () => {},
   refreshUser: async () => {},
 });
 
@@ -52,10 +55,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        setUser({
-          ...currentUser,
-          hasCompletedOnboarding: false,
-        });
         try {
           const userDoc = await ensureUserDocument(
             currentUser.uid,
@@ -68,6 +67,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           });
         } catch (err) {
           console.error("Failed to load user document:", err);
+          setUser({
+            ...currentUser,
+            hasCompletedOnboarding: false,
+          });
         }
       } else {
         setUser(null);
@@ -111,9 +114,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     await sendPasswordResetEmail(auth, email);
   };
 
+  const sendVerificationEmail = async () => {
+    if (!auth.currentUser) {
+      throw new Error("Not signed in");
+    }
+    await sendEmailVerification(auth.currentUser);
+  };
+
   const refreshUser = async () => {
     const currentUser = auth.currentUser;
     if (!currentUser) return;
+    await currentUser.reload();
     const userDoc = await getUserDocument(currentUser.uid);
     if (userDoc) {
       setUser({
@@ -125,7 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, signup, login, logout, resetPassword, refreshUser }}
+      value={{ user, loading, signup, login, logout, resetPassword, sendVerificationEmail, refreshUser }}
     >
       {children}
     </AuthContext.Provider>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -30,11 +30,12 @@ import {
   loadUserSettings,
   saveUserSettings,
 } from "../../services/userService";
+import type { UserSettings } from "../types/types";
 import { Spinner } from "../ui/Spinner";
+import type { User } from "firebase/auth";
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Name is too short"),
-  email: z.email("Enter a valid email"),
   bio: z.string().max(180, "Keep it under 180 characters").optional(),
   newsletter: z.boolean(),
   push: z.boolean(),
@@ -42,6 +43,23 @@ const profileSchema = z.object({
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
+
+function buildProfileFormValues(
+  user: User,
+  settings: UserSettings | null
+): ProfileFormValues {
+  return {
+    fullName:
+      settings?.displayName ||
+      user.displayName ||
+      user.email?.split("@")[0] ||
+      "",
+    bio: settings?.bio ?? "",
+    newsletter: settings?.newsletter ?? true,
+    push: settings?.push ?? true,
+    profilePrivate: settings?.profilePrivate ?? false,
+  };
+}
 
 const FieldLabel = ({
   htmlFor,
@@ -95,27 +113,36 @@ const ToggleRow: React.FC<{
   icon: React.ReactNode;
   title: string;
   description: string;
-  register: ReturnType<typeof useForm<ProfileFormValues>>["register"];
-  name: keyof ProfileFormValues;
-}> = ({ icon, title, description, register, name }) => (
-  <label className="flex items-center justify-between rounded-xl border border-default bg-surface-raised px-4 py-3 cursor-pointer hover:bg-surface-muted transition-colors">
-    <div className="flex items-center gap-3">
-      {icon}
-      <div>
-        <p className="font-medium text-primary text-sm">{title}</p>
-        <p className="text-xs text-muted">{description}</p>
-      </div>
-    </div>
-    <input
-      type="checkbox"
-      className="h-5 w-5 rounded accent-travel-600"
-      {...register(name)}
-    />
-  </label>
+  control: ReturnType<typeof useForm<ProfileFormValues>>["control"];
+  name: "newsletter" | "push" | "profilePrivate";
+}> = ({ icon, title, description, control, name }) => (
+  <Controller
+    name={name}
+    control={control}
+    render={({ field: { value, onChange, ref, onBlur } }) => (
+      <label className="flex items-center justify-between rounded-xl border border-default bg-surface-raised px-4 py-3 cursor-pointer hover:bg-surface-muted transition-colors">
+        <div className="flex items-center gap-3">
+          {icon}
+          <div>
+            <p className="font-medium text-primary text-sm">{title}</p>
+            <p className="text-xs text-muted">{description}</p>
+          </div>
+        </div>
+        <input
+          ref={ref}
+          type="checkbox"
+          className="h-5 w-5 rounded accent-travel-600"
+          checked={Boolean(value)}
+          onBlur={onBlur}
+          onChange={(event) => onChange(event.target.checked)}
+        />
+      </label>
+    )}
+  />
 );
 
 const SettingsPage: React.FC = () => {
-  const { user, resetPassword, refreshUser } = useAuth();
+  const { user, resetPassword, sendVerificationEmail, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"profile" | "preferences">(
     "profile"
@@ -124,17 +151,23 @@ const SettingsPage: React.FC = () => {
   const [deletePassword, setDeletePassword] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSendingVerification, setIsSendingVerification] = useState(false);
+
+  const hasPasswordProvider = Boolean(
+    user?.providerData?.some((provider) => provider.providerId === "password")
+  );
 
   const {
     register,
+    control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting, isDirty },
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       fullName: "",
-      email: "",
       bio: "",
       newsletter: true,
       push: true,
@@ -143,35 +176,39 @@ const SettingsPage: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!user) {
+    if (!user?.uid) {
       setPageLoading(false);
       return;
     }
 
+    let cancelled = false;
+    const uid = user.uid;
+
     const load = async () => {
+      const authUser = auth.currentUser;
+      if (!authUser) {
+        if (!cancelled) setPageLoading(false);
+        return;
+      }
+
       try {
-        const settings = await loadUserSettings(user.uid);
-        reset({
-          fullName:
-            settings?.displayName ||
-            user.displayName ||
-            user.email?.split("@")[0] ||
-            "",
-          email: settings?.email || user.email || "",
-          bio: settings?.bio ?? "",
-          newsletter: settings?.newsletter ?? true,
-          push: settings?.push ?? true,
-          profilePrivate: settings?.profilePrivate ?? false,
-        });
-      } catch {
-        toast.error("Failed to load settings.");
+        const settings = await loadUserSettings(uid);
+        if (cancelled) return;
+        reset(buildProfileFormValues(authUser, settings));
+      } catch (err) {
+        console.error("Failed to load settings:", err);
+        if (cancelled) return;
+        reset(buildProfileFormValues(authUser, null));
       } finally {
-        setPageLoading(false);
+        if (!cancelled) setPageLoading(false);
       }
     };
 
     load();
-  }, [user, reset]);
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.uid, reset]);
 
   const onSubmit = async (values: ProfileFormValues) => {
     if (!user) return;
@@ -179,7 +216,6 @@ const SettingsPage: React.FC = () => {
     try {
       await saveUserSettings(user.uid, {
         displayName: values.fullName,
-        email: values.email,
         bio: values.bio,
         newsletter: values.newsletter,
         push: values.push,
@@ -203,6 +239,10 @@ const SettingsPage: React.FC = () => {
       toast.error("No email on file for this account.");
       return;
     }
+    if (!hasPasswordProvider) {
+      toast.error("This account uses a social sign-in provider. Change your password with that provider.");
+      return;
+    }
     try {
       await resetPassword(user.email);
       toast.success("Password reset email sent.");
@@ -211,8 +251,24 @@ const SettingsPage: React.FC = () => {
     }
   };
 
+  const handleResendVerification = async () => {
+    setIsSendingVerification(true);
+    try {
+      await sendVerificationEmail();
+      toast.success("Verification email sent.");
+    } catch {
+      toast.error("Could not send verification email.");
+    } finally {
+      setIsSendingVerification(false);
+    }
+  };
+
   const handleDeleteAccount = async () => {
     if (!user?.email || !auth.currentUser) return;
+    if (!hasPasswordProvider) {
+      toast.error("Account deletion for social sign-in is not supported yet.");
+      return;
+    }
     if (!deletePassword) {
       toast.error("Enter your password to confirm deletion.");
       return;
@@ -247,6 +303,15 @@ const SettingsPage: React.FC = () => {
         ? "bg-travel-600 text-white shadow-sm dark:bg-travel-500"
         : "bg-surface-raised border border-default text-secondary hover:bg-surface-muted hover:text-primary"
     }`;
+
+  const accountEmail = auth.currentUser?.email ?? user?.email ?? "";
+  const displayName = watch("fullName") || user?.displayName || "Traveler";
+  const initials = displayName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
 
   if (pageLoading) {
     return (
@@ -309,6 +374,18 @@ const SettingsPage: React.FC = () => {
             title="Basic info"
             description="Keep your details up to date."
           >
+            <div className="flex items-center gap-4 mb-6 pb-6 border-b border-default">
+              <div className="h-14 w-14 rounded-full bg-travel-100 dark:bg-travel-900/40 flex items-center justify-center text-lg font-semibold text-travel-700 dark:text-travel-300">
+                {initials || "T"}
+              </div>
+              <div>
+                <p className="font-medium text-primary">{displayName}</p>
+                <p className="text-sm text-secondary">{user?.email}</p>
+                <p className="text-xs text-muted mt-0.5">
+                  {user?.emailVerified ? "Email verified" : "Email not verified"}
+                </p>
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <FieldLabel htmlFor="fullName">Full name</FieldLabel>
@@ -329,22 +406,21 @@ const SettingsPage: React.FC = () => {
               </div>
 
               <div>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <FieldLabel htmlFor="account-email">Email</FieldLabel>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3.5 h-4 w-4 text-muted" />
-                  <Input
-                    id="email"
-                    type="email"
-                    readOnly
-                    {...register("email")}
-                    className="pl-10 opacity-70"
-                  />
+                  <div
+                    id="account-email"
+                    aria-readonly="true"
+                    className={`${inputClasses} pl-10 opacity-70 cursor-not-allowed select-all`}
+                  >
+                    {accountEmail || "No email on file"}
+                  </div>
                 </div>
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                    {errors.email.message}
-                  </p>
-                )}
+                <p className="mt-1.5 text-xs text-muted">
+                  Your sign-in email is tied to your account and cannot be
+                  changed here.
+                </p>
               </div>
 
               <div className="md:col-span-2">
@@ -380,7 +456,7 @@ const SettingsPage: React.FC = () => {
                 icon={<Shield className="w-5 h-5 text-travel-600 dark:text-travel-400" />}
                 title="Private profile"
                 description="Hide your profile from public pages."
-                register={register}
+                control={control}
                 name="profilePrivate"
               />
             </SettingsCard>
@@ -395,14 +471,14 @@ const SettingsPage: React.FC = () => {
                   icon={<Bell className="w-5 h-5 text-travel-600 dark:text-travel-400" />}
                   title="Push notifications"
                   description="Recommendations & updates on the go."
-                  register={register}
+                  control={control}
                   name="push"
                 />
                 <ToggleRow
                   icon={<Send className="w-5 h-5 text-travel-600 dark:text-travel-400" />}
                   title="Email updates"
                   description="Occasional tips and deals."
-                  register={register}
+                  control={control}
                   name="newsletter"
                 />
               </div>
@@ -414,8 +490,29 @@ const SettingsPage: React.FC = () => {
               className="lg:col-span-3"
             >
               <div className="space-y-4">
+                {!user?.emailVerified && (
+                  <div className="rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/20 p-4 flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-sm text-secondary">
+                      Verify your email to help secure your account.
+                    </p>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      disabled={isSendingVerification}
+                      onClick={handleResendVerification}
+                    >
+                      {isSendingVerification ? "Sending…" : "Resend verification"}
+                    </Button>
+                  </div>
+                )}
+
                 <div className="flex flex-wrap gap-3">
-                  <Button type="button" variant="secondary" onClick={handleChangePassword}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={handleChangePassword}
+                    disabled={!hasPasswordProvider}
+                  >
                     Change password
                   </Button>
                   <Button
@@ -428,7 +525,7 @@ const SettingsPage: React.FC = () => {
                   </Button>
                 </div>
 
-                {showDeleteConfirm && (
+                {showDeleteConfirm && hasPasswordProvider && (
                   <div className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 p-4 space-y-3">
                     <p className="text-sm text-secondary">
                       This permanently deletes your profile, preferences, and
