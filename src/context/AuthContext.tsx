@@ -52,15 +52,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        const userDoc = await ensureUserDocument(
-          currentUser.uid,
-          currentUser.email,
-          currentUser.displayName
-        );
         setUser({
           ...currentUser,
-          hasCompletedOnboarding: userDoc.hasCompletedOnboarding ?? false,
+          hasCompletedOnboarding: false,
         });
+        try {
+          const userDoc = await ensureUserDocument(
+            currentUser.uid,
+            currentUser.email,
+            currentUser.displayName
+          );
+          setUser({
+            ...currentUser,
+            hasCompletedOnboarding: userDoc.hasCompletedOnboarding ?? false,
+          });
+        } catch (err) {
+          console.error("Failed to load user document:", err);
+        }
       } else {
         setUser(null);
       }

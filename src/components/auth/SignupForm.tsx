@@ -4,9 +4,9 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { authInputClass } from "./authInputStyles";
+import { PRIVACY_URL, TERMS_URL } from "../../lib/legalLinks";
 
 const signupSchema = z
   .object({
@@ -25,7 +25,6 @@ const signupSchema = z
 type SignupFormValues = z.infer<typeof signupSchema>;
 
 const SignupForm = () => {
-  const navigate = useNavigate();
   const { signup } = useAuth();
   const {
     register,
@@ -40,7 +39,6 @@ const SignupForm = () => {
     try {
       await signup(data.email, data.password, data.fullName);
       toast.success("Signup successful! Redirecting...");
-      navigate("/recommendations");
     } catch (error: unknown) {
       const code =
         error && typeof error === "object" && "code" in error
@@ -164,11 +162,21 @@ const SignupForm = () => {
         />
         <label htmlFor="terms" className="ml-2 block text-sm text-secondary">
           I agree to the{" "}
-          <a href="#" className="text-travel-600 dark:text-travel-400 hover:underline">
+          <a
+            href={TERMS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-travel-600 dark:text-travel-400 hover:underline"
+          >
             Terms of Service
           </a>{" "}
           and{" "}
-          <a href="#" className="text-travel-600 dark:text-travel-400 hover:underline">
+          <a
+            href={PRIVACY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-travel-600 dark:text-travel-400 hover:underline"
+          >
             Privacy Policy
           </a>
         </label>

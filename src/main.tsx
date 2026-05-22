@@ -1,6 +1,7 @@
-
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { reactErrorHandler } from "@sentry/react";
+import "./instrument";
 import "./index.css";
 import App from "./App";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -9,10 +10,13 @@ import { initAppCheck } from "./firebase/appCheck";
 
 initAppCheck();
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
-);
-root.render(
+const rootElement = document.getElementById("root") as HTMLElement;
+
+ReactDOM.createRoot(rootElement, {
+  onUncaughtError: reactErrorHandler(),
+  onCaughtError: reactErrorHandler(),
+  onRecoverableError: reactErrorHandler(),
+}).render(
   <React.StrictMode>
     <ThemeProvider>
       <AuthProvider>

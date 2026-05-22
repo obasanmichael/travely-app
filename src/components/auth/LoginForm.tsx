@@ -3,7 +3,6 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
 import { authInputClass } from "./authInputStyles";
@@ -16,7 +15,6 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
-  const navigate = useNavigate();
   const { login, resetPassword } = useAuth();
   const {
     register,
@@ -33,7 +31,6 @@ const LoginForm = () => {
     try {
       await login(data.email, data.password);
       toast.success("Signin successful! Redirecting...");
-      navigate("/recommendations");
     } catch (error: unknown) {
       const code =
         error && typeof error === "object" && "code" in error
