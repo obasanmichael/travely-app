@@ -321,9 +321,11 @@ const QuizForm: React.FC = () => {
 
     try {
       await submitQuizAndGetRecommendations(user.uid, formData);
-      await refreshUser();
       toast.success("Recommendations ready!");
       navigate("/recommendations");
+      void refreshUser().catch((err) => {
+        console.error("Failed to refresh user after quiz submission:", err);
+      });
     } catch (error) {
       console.error("Error submitting quiz:", error);
       toast.error("Could not get recommendations. Please try again.");

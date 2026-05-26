@@ -37,7 +37,12 @@ export async function apiFetch<T>(
     extra.forEach((value, key) => headers.set(key, value));
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const url = `${API_BASE_URL}${path}`;
+  if (import.meta.env.DEV) {
+    console.info(`[Travely API] ${options.method ?? "GET"} ${url}`);
+  }
+
+  const response = await fetch(url, {
     ...options,
     headers,
   });

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import { getRecommendationHistory } from "../firebase/firestore";
+import { readCachedRecommendationRuns } from "../lib/clientStorage";
 import type { RecommendationRun } from "../components/types/types";
 
 interface UseRecommendationHistoryResult {
@@ -30,10 +31,23 @@ export function useRecommendationHistory(): UseRecommendationHistoryResult {
       setError(null);
       try {
         const history = await getRecommendationHistory(user.uid);
-        if (!cancelled) setRuns(history);
+        if (!cancelled) {
+          setRuns(
+            history.length > 0
+              ? history
+              : readCachedRecommendationRuns<RecommendationRun>(user.uid)
+          );
+        }
       } catch (err) {
         console.error("Error loading recommendation history:", err);
         if (!cancelled) {
+          const cachedRuns =
+            readCachedRecommendationRuns<RecommendationRun>(user.uid);
+          if (cachedRuns.length > 0) {
+            setRuns(cachedRuns);
+            setError(null);
+            return;
+          }
           setError("Failed to load history.");
           toast.error("Failed to load recommendation history.");
         }

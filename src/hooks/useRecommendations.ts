@@ -37,8 +37,16 @@ export function useRecommendations(): UseRecommendationsResult {
       setData(cached);
     } catch (err) {
       console.error("Error loading recommendations:", err);
+      const cached = getCachedRecommendations(uid);
+      if (cached) {
+        setData(cached);
+        setError(null);
+        return;
+      }
       setError("Failed to load recommendations.");
-      toast.error("Failed to load recommendations.");
+      toast.error("Failed to load recommendations.", {
+        id: "recommendations-load-error",
+      });
     } finally {
       setLoading(false);
     }

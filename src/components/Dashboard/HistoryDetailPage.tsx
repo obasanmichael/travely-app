@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { getRecommendationRunById } from "../../firebase/firestore";
 import { runToResponse } from "../../services/recommendationService";
+import { readCachedRecommendationRunById } from "../../lib/clientStorage";
 import type { RecommendationRun } from "../types/types";
 import { Spinner } from "../ui/Spinner";
 import { Card } from "../ui/Card";
@@ -27,13 +28,26 @@ const HistoryDetailPage = () => {
 
     const load = async () => {
       try {
-        const result = await getRecommendationRunById(user.uid, runId);
+        const result =
+          (await getRecommendationRunById(user.uid, runId)) ??
+          readCachedRecommendationRunById<RecommendationRun>(user.uid, runId);
         if (!cancelled) {
           if (!result) setError("This recommendation run was not found.");
           setRun(result);
         }
       } catch {
-        if (!cancelled) setError("Failed to load this run.");
+        const cachedRun = readCachedRecommendationRunById<RecommendationRun>(
+          user.uid,
+          runId
+        );
+        if (!cancelled) {
+          if (cachedRun) {
+            setRun(cachedRun);
+            setError(null);
+          } else {
+            setError("Failed to load this run.");
+          }
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
