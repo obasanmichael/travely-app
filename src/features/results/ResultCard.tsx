@@ -2,7 +2,7 @@ import { useId, useState } from "react";
 import type { RecommendationItem } from "../../api/client";
 import { CostMeter } from "../../components/CostMeter";
 import { SeasonRibbon } from "../../components/SeasonRibbon";
-import { formatNaira } from "../../lib/format";
+import { amountLabel } from "./costLabels";
 
 const COMPONENT_LABELS: Record<string, string> = {
   intercity_transport: "Getting there and back",
@@ -87,9 +87,7 @@ export function ResultCard({ item, budget, month, rank }: ResultCardProps) {
                   <div key={component.name} className="grid grid-cols-[1fr_auto] gap-x-4">
                     <dt className="text-sm font-semibold text-ink">{COMPONENT_LABELS[component.name] ?? component.name}</dt>
                     <dd className="m-0 text-right text-sm font-semibold tabular-nums text-ink">
-                      {component.low === component.high
-                        ? formatNaira(component.low)
-                        : `${formatNaira(component.low)}–${formatNaira(component.high)}`}
+                      {amountLabel(component)}
                     </dd>
                     <dd className="col-span-2 m-0 text-[13px] text-ink-soft">
                       {component.basis}
