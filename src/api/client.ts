@@ -11,6 +11,8 @@ export type RecommendationResponse =
 export type RecommendationItem = components["schemas"]["RecommendationOut"];
 export type Meta = components["schemas"]["MetaResponse"];
 export type Interest = Meta["interests"][number];
+export type Destination = components["schemas"]["DestinationOut"];
+export type RunSummary = components["schemas"]["RunSummary"];
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -66,6 +68,11 @@ async function idToken(): Promise<string> {
 }
 
 async function request<T>(path: string, init: RequestInit = {}, withAuth = true): Promise<T> {
+  const response = await send(path, init, withAuth);
+  return (await response.json()) as T;
+}
+
+async function send(path: string, init: RequestInit = {}, withAuth = true): Promise<Response> {
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json");
   if (init.body) headers.set("Content-Type", "application/json");
@@ -87,7 +94,7 @@ async function request<T>(path: string, init: RequestInit = {}, withAuth = true)
     }
     throw describeFailure(response.status, detail);
   }
-  return (await response.json()) as T;
+  return response;
 }
 
 export function getMeta(): Promise<Meta> {
@@ -103,4 +110,28 @@ export function getRecommendations(
     body: JSON.stringify(body),
     headers: { "Idempotency-Key": idempotencyKey },
   });
+}
+
+export function getFeatured(limit = 6): Promise<Destination[]> {
+  return request<Destination[]>(`/v1/destinations/featured?limit=${limit}`, {}, false);
+}
+
+export function getDestination(slug: string): Promise<Destination> {
+  return request<Destination>(`/v1/destinations/${encodeURIComponent(slug)}`, {}, false);
+}
+
+export function getSaved(): Promise<Destination[]> {
+  return request<Destination[]>("/v1/me/saved");
+}
+
+export async function setSaved(destinationId: string, saved: boolean): Promise<void> {
+  await send(`/v1/me/saved/${destinationId}`, { method: saved ? "PUT" : "DELETE" });
+}
+
+export function getRuns(): Promise<RunSummary[]> {
+  return request<RunSummary[]>("/v1/me/runs");
+}
+
+export async function mergeGuest(anonymousToken: string): Promise<void> {
+  await send("/v1/me/merge", { method: "POST", body: JSON.stringify({ anonymous_token: anonymousToken }) });
 }
