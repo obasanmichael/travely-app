@@ -16,6 +16,9 @@ export type RunSummary = components["schemas"]["RunSummary"];
 export type PublicSample = components["schemas"]["PublicSample"];
 export type RunDetail = components["schemas"]["RunDetail"];
 export type DestinationPage = components["schemas"]["api__v1__schemas__DestinationPage"];
+export type Profile = components["schemas"]["ProfileOut"];
+// The generator marks fields with server defaults as required; every field is optional on the wire.
+export type ProfilePatch = Partial<components["schemas"]["ProfilePatch"]>;
 export type BudgetBand = components["schemas"]["BudgetBandResponse"];
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
@@ -170,4 +173,28 @@ export function browseDestinations(filters: BrowseFilters = {}): Promise<Destina
   params.set("page", String(filters.page ?? 1));
   params.set("page_size", String(filters.pageSize ?? 24));
   return request<DestinationPage>(`/v1/destinations?${params}`, {}, false);
+}
+
+export function getProfile(): Promise<Profile> {
+  return request<Profile>("/v1/me/profile");
+}
+
+export function patchProfile(patch: ProfilePatch): Promise<Profile> {
+  return request<Profile>("/v1/me/profile", { method: "PATCH", body: JSON.stringify(patch) });
+}
+
+/** The user's data as a file download. */
+export async function downloadMyData(): Promise<void> {
+  const response = await send("/v1/me/export");
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "travely-data.json";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function deleteMyAccount(): Promise<void> {
+  await send("/v1/me", { method: "DELETE" });
 }

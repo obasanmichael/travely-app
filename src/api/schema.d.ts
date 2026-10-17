@@ -429,6 +429,64 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/me/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Profile */
+        get: operations["get_profile_v1_me_profile_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Patch Profile */
+        patch: operations["patch_profile_v1_me_profile_patch"];
+        trace?: never;
+    };
+    "/v1/me/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Data
+         * @description Everything Travely stores about the caller, as a downloadable JSON file.
+         */
+        get: operations["export_data_v1_me_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Account
+         * @description Delete the caller's data, then their Firebase account. Both go, or the call fails and can be retried.
+         */
+        delete: operations["delete_account_v1_me_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -645,6 +703,17 @@ export interface components {
             /** Licence */
             licence: string;
         };
+        /** Preferences */
+        Preferences: {
+            /** Tier */
+            tier?: ("budget" | "mid" | "premium") | null;
+            /** Pace */
+            pace?: ("relaxed" | "balanced" | "packed") | null;
+            /** Interests */
+            interests?: {
+                [key: string]: "love" | "like";
+            };
+        };
         /** PriceObservationIn */
         PriceObservationIn: {
             /**
@@ -688,6 +757,37 @@ export interface components {
             source_kind: "official_site" | "manual";
             /** Notes */
             notes?: string | null;
+        };
+        /** ProfileOut */
+        ProfileOut: {
+            /** Email */
+            email: string | null;
+            /** Display Name */
+            display_name: string | null;
+            /** Home State */
+            home_state: string | null;
+            preferences: components["schemas"]["Preferences"];
+            /** Analytics Consent */
+            analytics_consent: boolean;
+            /** Marketing Consent */
+            marketing_consent: boolean;
+        };
+        /** ProfilePatch */
+        ProfilePatch: {
+            /** Display Name */
+            display_name?: string | null;
+            /** Home State */
+            home_state?: string | null;
+            /**
+             * Clear Home State
+             * @default false
+             */
+            clear_home_state: boolean;
+            preferences?: components["schemas"]["Preferences"] | null;
+            /** Analytics Consent */
+            analytics_consent?: boolean | null;
+            /** Marketing Consent */
+            marketing_consent?: boolean | null;
         };
         /** PublicSample */
         PublicSample: {
@@ -1652,6 +1752,97 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
+            };
+        };
+    };
+    get_profile_v1_me_profile_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileOut"];
+                };
+            };
+        };
+    };
+    patch_profile_v1_me_profile_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfilePatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_data_v1_me_export_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    delete_account_v1_me_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

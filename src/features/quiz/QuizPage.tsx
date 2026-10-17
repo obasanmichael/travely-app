@@ -2,7 +2,8 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ApiError, getRecommendations } from "../../api/client";
+import { ApiError, getProfile, getRecommendations } from "../../api/client";
+import { useAuth } from "../auth/authContext";
 import { Button } from "../../ui/Button";
 import { Skeleton } from "../../ui/Skeleton";
 import { DEFAULT_SEARCH, newSearchKey, toRequest, validate, type SearchState } from "../search/searchState";
@@ -26,6 +27,7 @@ export function QuizPage() {
   const reduce = useReducedMotion();
   const meta = useMeta();
   const incoming = (location.state ?? {}) as Prefill;
+  const { user } = useAuth();
 
   const initial = useRef(
     incoming.prefill
@@ -40,6 +42,33 @@ export function QuizPage() {
   const attempt = useRef<{ fingerprint: string; key: string } | null>(null);
 
   useEffect(() => saveDraft({ state, step }), [state, step]);
+
+  // A brand-new quiz starts from the user's saved home state and preferences.
+  const startedFresh = useRef(!incoming.prefill && !loadDraft());
+  useEffect(() => {
+    if (!user || !startedFresh.current) return;
+    startedFresh.current = false;
+    let cancelled = false;
+    getProfile()
+      .then((profile) => {
+        if (cancelled) return;
+        setState((current) => {
+          // Don't overwrite anything the user has already started changing.
+          if (JSON.stringify(current) !== JSON.stringify(DEFAULT_SEARCH)) return current;
+          return {
+            ...current,
+            origin: profile.home_state ?? current.origin,
+            tier: profile.preferences.tier ?? current.tier,
+            pace: profile.preferences.pace ?? current.pace,
+            interests: (profile.preferences.interests ?? {}) as SearchState["interests"],
+          };
+        });
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   const update = useCallback((patch: Partial<SearchState>) => setState((s) => ({ ...s, ...patch })), []);
   const go = (next: number) => {

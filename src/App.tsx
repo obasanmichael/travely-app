@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { AppShell } from "./app/AppShell";
 import { OverviewPage } from "./app/OverviewPage";
-import { SettingsPage } from "./app/SettingsPage";
+import { SettingsPage } from "./features/settings/SettingsPage";
 import { AuthPage } from "./features/auth/AuthPage";
 import { PlacePage } from "./features/places/PlacePage";
 import { TripPage } from "./features/trips/TripPage";

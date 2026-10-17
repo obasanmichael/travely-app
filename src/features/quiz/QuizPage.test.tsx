@@ -2,17 +2,19 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { makeAuth } from "../../test/factories";
 import { META, response } from "../../test/fixtures";
 import { Providers } from "../../test/providers";
 import { ThemeProvider } from "../../theme/ThemeProvider";
 import { QuizPage } from "./QuizPage";
 
-const api = vi.hoisted(() => ({ getMeta: vi.fn(), getRecommendations: vi.fn(), getBudgetBand: vi.fn() }));
+const api = vi.hoisted(() => ({ getMeta: vi.fn(), getRecommendations: vi.fn(), getBudgetBand: vi.fn(), getProfile: vi.fn() }));
 vi.mock("../../api/client", async (original) => ({
   ...(await original<typeof import("../../api/client")>()),
   getMeta: api.getMeta,
   getRecommendations: api.getRecommendations,
   getBudgetBand: api.getBudgetBand,
+  getProfile: api.getProfile,
 }));
 
 function Trip() {
@@ -20,10 +22,10 @@ function Trip() {
   return <p>Trip page {location.pathname}</p>;
 }
 
-function renderQuiz() {
+function renderQuiz(auth = makeAuth()) {
   render(
     <ThemeProvider>
-      <Providers>
+      <Providers auth={auth}>
         <MemoryRouter initialEntries={["/app/plan"]}>
           <Routes>
             <Route path="/app/plan" element={<QuizPage />} />
@@ -43,6 +45,20 @@ describe("QuizPage", () => {
     api.getMeta.mockResolvedValue(META);
     api.getBudgetBand.mockResolvedValue({ band: "Medium", per_person_per_day: 50000 });
     api.getRecommendations.mockReset();
+  });
+
+  it("starts a new quiz from the saved home state and preferences", async () => {
+    api.getProfile.mockResolvedValue({
+      email: "a@b.c", display_name: "Ada", home_state: "NG-OS", analytics_consent: false, marketing_consent: false,
+      preferences: { tier: "premium", pace: "packed", interests: { waterfalls: "love" } },
+    });
+    renderQuiz(makeAuth({ user: { uid: "u1" } as never, isSignedIn: true }));
+    await screen.findByText("Where are you starting from?");
+    await waitFor(() => expect(screen.getByRole("button", { name: "Osun" })).toHaveAttribute("aria-pressed", "true"));
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /Skip to review/ }));
+    expect(await screen.findByText("Treat myself")).toBeInTheDocument();
+    expect(screen.getByText("Waterfalls")).toBeInTheDocument();
   });
 
   it("asks one question at a time and tracks progress", async () => {
