@@ -43,7 +43,7 @@ export function LandingNav() {
           <div className="hidden text-white/80 sm:block">
             <ThemeToggle />
           </div>
-          <ButtonLink to="/signin" variant="ghost" size="sm" className="hidden text-white hover:bg-white/10 sm:inline-flex">
+          <ButtonLink to="/signin" variant="ghost" size="sm" className="text-white hover:bg-white/10 max-sm:hidden">
             Sign in
           </ButtonLink>
           <ButtonLink to="/app/plan" variant="sun" size="sm">

@@ -9,9 +9,9 @@ interface CostMeterProps {
 
 
 const RANGE_CLASS: Record<Fit, string> = {
-  within: "bg-lagoon",
+  within: "bg-primary",
   stretch: "bg-sun",
-  over: "bg-alert",
+  over: "bg-danger",
 };
 
 const SUMMARY: Record<Fit, string> = {
@@ -32,7 +32,7 @@ export function CostMeter({ low, high, budget }: CostMeterProps) {
         <p className="m-0 text-lg font-bold tabular-nums text-ink">
           {formatNairaShort(low)}–{formatNairaShort(high)}
         </p>
-        <p className="m-0 text-sm text-ink-soft">your budget {formatNairaShort(budget)}</p>
+        <p className="m-0 text-sm text-muted">your budget {formatNairaShort(budget)}</p>
       </div>
       <div className="relative mt-2 h-2 rounded-full bg-line" aria-hidden="true">
         <span

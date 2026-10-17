@@ -175,7 +175,8 @@ export function QuizPage() {
         </p>
       )}
 
-      <div className="mt-10 flex items-center justify-between gap-3">
+      {/* Pinned above the tab bar on phones so Continue is never below the fold. */}
+      <div className="sticky bottom-[76px] z-10 -mx-4 mt-10 flex items-center justify-between gap-3 border-t border-line bg-bg/90 px-4 py-3 backdrop-blur-xl lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
         <Button variant="ghost" onClick={() => go(step - 1)} disabled={step === 0}>
           <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back
         </Button>

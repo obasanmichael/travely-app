@@ -1,13 +1,19 @@
-import { Link } from "react-router-dom";
+import { ButtonLink } from "../ui/Button";
 
 export function NotFound() {
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6">
-      <h1 className="m-0 text-3xl font-bold text-ink">This page doesn't exist</h1>
-      <p className="mt-3 text-ink-soft">The link may be old or mistyped.</p>
-      <Link to="/" className="mt-6 inline-block rounded-full bg-lagoon px-5 py-2.5 font-semibold text-white no-underline">
-        Plan a trip
-      </Link>
+    <main className="grid min-h-dvh place-items-center bg-bg px-6 text-center">
+      <div>
+        <p className="m-0 font-serif text-3xl text-ink">travely</p>
+        <h1 className="m-0 mt-10 font-serif text-6xl leading-none tracking-tight text-ink">Lost the trail.</h1>
+        <p className="mb-0 mt-4 text-muted">That page doesn't exist. The link may be old or mistyped.</p>
+        <div className="mt-8 flex justify-center gap-3">
+          <ButtonLink to="/">Go home</ButtonLink>
+          <ButtonLink to="/app" variant="secondary">
+            Open the app
+          </ButtonLink>
+        </div>
+      </div>
     </main>
   );
 }

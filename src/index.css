@@ -21,14 +21,6 @@
   --color-danger-wash: var(--c-danger-wash);
   --color-night: #0a0f1c;
 
-  /* Temporary aliases for screens not yet rebuilt; removed once they are. */
-  --color-ink-soft: var(--c-muted);
-  --color-lagoon: var(--c-primary);
-  --color-lagoon-deep: var(--c-primary-strong);
-  --color-lagoon-wash: var(--c-primary-wash);
-  --color-paper: var(--c-bg);
-  --color-alert: var(--c-danger);
-  --color-alert-wash: var(--c-danger-wash);
 
   --shadow-card: 0 1px 2px rgb(14 23 38 / 0.04), 0 8px 24px -8px rgb(14 23 38 / 0.10);
   --shadow-lift: 0 2px 4px rgb(14 23 38 / 0.05), 0 20px 40px -12px rgb(14 23 38 / 0.22);
