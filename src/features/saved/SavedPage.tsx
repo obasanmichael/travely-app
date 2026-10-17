@@ -34,7 +34,7 @@ export function SavedPage() {
       {!isSignedIn && (
         <p className="mb-0 mt-3 max-w-prose text-ink-soft">
           You're browsing as a guest, so these are only on this device.{" "}
-          <Link to="/signin?mode=create&next=/saved" className="font-semibold text-lagoon underline">
+          <Link to="/signup?next=/app/saved" className="font-semibold text-lagoon underline">
             Create an account
           </Link>{" "}
           to keep them everywhere.
