@@ -39,6 +39,7 @@ export const ITEM: RecommendationItem = {
   cost: {
     total: { low: 45_000, high: 77_000 },
     confidence: "medium",
+    missing: [],
     components: [
       { name: "food", low: 10_000, high: 20_000, confidence: "medium", basis: "NBS zonal food prices", observed_on: "2026-05-01" },
     ],
@@ -64,6 +65,7 @@ export function response(overrides: Partial<RecommendationResponse> = {}): Recom
     cheapest_feasible_budget: 45_000,
     notes: [],
     recommendations: [ITEM],
+    unverified_stays: [],
     ...overrides,
   };
 }

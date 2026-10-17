@@ -10,6 +10,7 @@ interface SearchSentenceProps {
   initial: SearchState;
   submitLabel?: string;
   onSubmit: (state: SearchState) => void;
+  tone?: "light" | "dark";
 }
 
 const inlineControl =
@@ -67,7 +68,14 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 
 const boxControl = "rounded-lg border border-line bg-surface px-3 py-2.5 text-base font-normal text-ink";
 
-export function SearchSentence({ meta, initial, submitLabel = "Show me places", onSubmit }: SearchSentenceProps) {
+export function SearchSentence({
+  meta,
+  initial,
+  submitLabel = "Show me places",
+  onSubmit,
+  tone = "light",
+}: SearchSentenceProps) {
+  const dark = tone === "dark";
   const [state, setState] = useState<SearchState>(initial);
   const [budgetText, setBudgetText] = useState(initial.budget.toLocaleString("en-NG"));
   const [problems, setProblems] = useState<string[]>([]);
@@ -85,7 +93,11 @@ export function SearchSentence({ meta, initial, submitLabel = "Show me places", 
 
   return (
     <form onSubmit={submit} noValidate aria-describedby={problems.length ? errorId : undefined}>
-      <p className="m-0 max-w-[22ch] text-[clamp(1.75rem,5.5vw,3.25rem)] font-semibold leading-[1.35] tracking-tight text-ink">
+      <p
+        className={`m-0 max-w-[22ch] text-[clamp(1.75rem,5vw,3.25rem)] font-semibold leading-[1.35] tracking-tight ${
+          dark ? "text-white" : "text-ink"
+        }`}
+      >
         I have ₦
         <input
           aria-label="Total budget in naira, for everyone"
@@ -98,10 +110,11 @@ export function SearchSentence({ meta, initial, submitLabel = "Show me places", 
             setBudgetText(digits ? Number(digits).toLocaleString("en-NG") : "");
             update({ budget: digits ? Number(digits) : 0 });
           }}
-          className={`${inlineControl} ml-0 w-auto`}
+          className={`${inlineControl} ml-0 w-auto ${dark ? "border-sun text-sun focus:border-white" : ""}`}
         />
         for
         <InlineSelect
+          tone={tone}
           label="Trip length"
           value={state.days}
           options={Array.from({ length: LIMITS.days.max }, (_, i) => ({
@@ -112,6 +125,7 @@ export function SearchSentence({ meta, initial, submitLabel = "Show me places", 
         />
         from
         <InlineSelect
+          tone={tone}
           label="Where you're starting from"
           value={state.origin}
           options={meta.states.map((st) => ({ value: st.iso, label: st.name }))}
@@ -119,6 +133,7 @@ export function SearchSentence({ meta, initial, submitLabel = "Show me places", 
         />
         for
         <InlineSelect
+          tone={tone}
           label="Number of travellers"
           value={state.travellers}
           options={Array.from({ length: LIMITS.travellers.max }, (_, i) => ({
@@ -132,6 +147,7 @@ export function SearchSentence({ meta, initial, submitLabel = "Show me places", 
 
       <div className="mt-10 max-w-2xl">
         <InterestPicker
+          tone={tone}
           interests={meta.interests}
           value={state.interests}
           onChange={(interests) => update({ interests })}
@@ -143,13 +159,13 @@ export function SearchSentence({ meta, initial, submitLabel = "Show me places", 
           type="button"
           aria-expanded={moreOpen}
           onClick={() => setMoreOpen((open) => !open)}
-          className="text-sm font-semibold text-lagoon underline underline-offset-4"
+          className={`text-sm font-semibold underline underline-offset-4 ${dark ? "text-sun" : "text-lagoon"}`}
         >
           {moreOpen ? "Fewer options" : "More options: when, comfort, pace"}
         </button>
 
         {moreOpen && (
-          <div className="mt-5 grid gap-6 sm:grid-cols-2">
+          <div className={`mt-5 grid gap-6 rounded-2xl p-5 sm:grid-cols-2 ${dark ? "bg-surface" : ""}`}>
             <Field label="When are you going?">
               <select
                 value={state.month ?? ""}
@@ -203,7 +219,9 @@ export function SearchSentence({ meta, initial, submitLabel = "Show me places", 
 
       <button
         type="submit"
-        className="mt-8 rounded-full bg-lagoon px-7 py-3.5 text-base font-semibold text-white hover:bg-lagoon-deep"
+        className={`mt-8 rounded-full px-7 py-3.5 text-base font-semibold ${
+          dark ? "bg-sun text-ink hover:brightness-95" : "bg-lagoon text-white hover:bg-lagoon-deep"
+        }`}
       >
         {submitLabel}
       </button>

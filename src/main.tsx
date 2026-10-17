@@ -5,6 +5,8 @@ import { reactErrorHandler } from "@sentry/react";
 import "./instrument";
 import "./index.css";
 import App from "./App";
+import { AuthProvider } from "./features/auth/AuthProvider";
+import { SavedProvider } from "./features/saved/SavedProvider";
 import { initAppCheck } from "./firebase/appCheck";
 
 initAppCheck();
@@ -16,7 +18,11 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement, {
 }).render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <AuthProvider>
+        <SavedProvider>
+          <App />
+        </SavedProvider>
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

@@ -15,6 +15,19 @@
   --color-rain: #7a9cc6;
   --color-alert: #b3261e;
   --color-alert-wash: #fbeceb;
+
+  --animate-ribbon-fill: ribbon-fill 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+
+  @keyframes ribbon-fill {
+    from {
+      transform: scaleX(0);
+      opacity: 0;
+    }
+    to {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+  }
 }
 
 @layer base {

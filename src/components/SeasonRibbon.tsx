@@ -22,9 +22,11 @@ function describe(scores: number[], month?: number | null): string {
 interface SeasonRibbonProps {
   scores: number[];
   month?: number | null;
+  /** Fill month by month on first show: the one entrance moment on the results page. */
+  animate?: boolean;
 }
 
-export function SeasonRibbon({ scores, month }: SeasonRibbonProps) {
+export function SeasonRibbon({ scores, month, animate = false }: SeasonRibbonProps) {
   if (scores.length !== 12) {
     return <p className="text-sm text-ink-soft">Season data isn't available for this place yet.</p>;
   }
@@ -36,9 +38,10 @@ export function SeasonRibbon({ scores, month }: SeasonRibbonProps) {
           return (
             <div key={index} className="flex flex-col items-center gap-1">
               <span
-                className={`h-3 w-full rounded-sm ${CELL_CLASS[seasonLevel(score)]} ${
+                className={`h-3 w-full origin-left rounded-sm ${CELL_CLASS[seasonLevel(score)]} ${
                   isTravelMonth ? "outline-2 outline-offset-1 outline-ink" : ""
-                }`}
+                } ${animate ? "animate-ribbon-fill" : ""}`}
+                style={animate ? { animationDelay: `${index * 45}ms` } : undefined}
               />
               <span className={`text-[11px] leading-none ${isTravelMonth ? "font-bold text-ink" : "text-ink-soft"}`}>
                 {monthInitial(index + 1)}
