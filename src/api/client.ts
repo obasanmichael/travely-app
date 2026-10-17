@@ -14,6 +14,8 @@ export type Interest = Meta["interests"][number];
 export type Destination = components["schemas"]["DestinationOut"];
 export type RunSummary = components["schemas"]["RunSummary"];
 export type PublicSample = components["schemas"]["PublicSample"];
+export type RunDetail = components["schemas"]["RunDetail"];
+export type BudgetBand = components["schemas"]["BudgetBandResponse"];
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -139,4 +141,12 @@ export async function mergeGuest(anonymousToken: string): Promise<void> {
 
 export function getSample(): Promise<PublicSample> {
   return request<PublicSample>("/v1/public/sample", {}, false);
+}
+
+export function getTrip(runId: string): Promise<RunDetail> {
+  return request<RunDetail>(`/v1/me/runs/${encodeURIComponent(runId)}`);
+}
+
+export function getBudgetBand(perPersonPerDay: number): Promise<BudgetBand> {
+  return request<BudgetBand>(`/v1/meta/budget-band?per_person_per_day=${perPersonPerDay}`, {}, false);
 }

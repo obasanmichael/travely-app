@@ -1,11 +1,11 @@
 import { Route, Routes } from "react-router-dom";
 import { AppShell } from "./app/AppShell";
 import { OverviewPage } from "./app/OverviewPage";
-import { PlanPage } from "./app/PlanPage";
 import { SettingsPage } from "./app/SettingsPage";
 import { AuthPage } from "./features/auth/AuthPage";
 import { PlacePage } from "./features/places/PlacePage";
 import { ResultsPage } from "./features/results/ResultsPage";
+import { QuizPage } from "./features/quiz/QuizPage";
 import { SavedPage } from "./features/saved/SavedPage";
 import { SearchesPage } from "./features/searches/SearchesPage";
 import { Landing } from "./website/Landing";
@@ -20,7 +20,7 @@ export default function App() {
       <Route path="/reset" element={<AuthPage mode="reset" />} />
       <Route path="/app" element={<AppShell />}>
         <Route index element={<OverviewPage />} />
-        <Route path="plan" element={<PlanPage />} />
+        <Route path="plan" element={<QuizPage />} />
         <Route path="results" element={<ResultsPage />} />
         <Route path="places/:slug" element={<PlacePage />} />
         <Route path="saved" element={<SavedPage />} />

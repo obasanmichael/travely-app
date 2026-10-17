@@ -33,3 +33,11 @@ class StubIntersectionObserver {
   }
 }
 window.IntersectionObserver = window.IntersectionObserver ?? (StubIntersectionObserver as unknown as typeof IntersectionObserver);
+
+// Radix sliders measure themselves; jsdom has no ResizeObserver.
+class StubResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+window.ResizeObserver = window.ResizeObserver ?? (StubResizeObserver as unknown as typeof ResizeObserver);

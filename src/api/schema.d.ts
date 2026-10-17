@@ -126,6 +126,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/meta/budget-band": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Band
+         * @description The Low/Medium/High label for a daily spend, from the same fuzzy definition the engine uses.
+         */
+        get: operations["band_v1_meta_budget_band_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/public/sample": {
         parameters: {
             query?: never;
@@ -349,6 +369,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/me/runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Run Detail
+         * @description One stored trip. Scoped to the caller: someone else's run id is just a 404.
+         */
+        get: operations["run_detail_v1_me_runs__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/me/merge": {
         parameters: {
             query?: never;
@@ -412,6 +452,13 @@ export interface components {
             accommodation_rates: number;
             /** Last Verified At */
             last_verified_at: string | null;
+        };
+        /** BudgetBandResponse */
+        BudgetBandResponse: {
+            /** Band */
+            band: string;
+            /** Per Person Per Day */
+            per_person_per_day: number;
         };
         /** Changes */
         Changes: {
@@ -727,6 +774,24 @@ export interface components {
             /** Note */
             note?: string | null;
             changes?: components["schemas"]["Changes"] | null;
+        };
+        /** RunDetail */
+        RunDetail: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Inputs */
+            inputs: {
+                [key: string]: unknown;
+            };
+            outputs: components["schemas"]["api__v1__schemas__RecommendationResponse"];
         };
         /** RunSummary */
         RunSummary: {
@@ -1054,6 +1119,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MetaResponse"];
+                };
+            };
+        };
+    };
+    band_v1_meta_budget_band_get: {
+        parameters: {
+            query: {
+                per_person_per_day: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetBandResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1416,6 +1512,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RunSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_detail_v1_me_runs__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunDetail"];
                 };
             };
             /** @description Validation Error */
