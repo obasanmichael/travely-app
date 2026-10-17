@@ -19,6 +19,13 @@ export type DestinationPage = components["schemas"]["api__v1__schemas__Destinati
 export type Profile = components["schemas"]["ProfileOut"];
 // The generator marks fields with server defaults as required; every field is optional on the wire.
 export type ProfilePatch = Partial<components["schemas"]["ProfilePatch"]>;
+export type AdminDestination = components["schemas"]["AdminDestination"];
+export type AdminPage = components["schemas"]["api__v1__admin__DestinationPage"];
+export type ReviewBody = Partial<components["schemas"]["ReviewRequest"]> & { action: components["schemas"]["ReviewRequest"]["action"] };
+export type PriceBody = Partial<components["schemas"]["PriceObservationIn"]> &
+  Pick<components["schemas"]["PriceObservationIn"], "component" | "unit" | "subject" | "amount" | "observed_on" | "source_url">;
+export type CoverageRow = components["schemas"]["CoverageRow"];
+export type PublishResult = components["schemas"]["PublishResponse"];
 export type BudgetBand = components["schemas"]["BudgetBandResponse"];
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
@@ -197,4 +204,36 @@ export async function downloadMyData(): Promise<void> {
 
 export async function deleteMyAccount(): Promise<void> {
   await send("/v1/me", { method: "DELETE" });
+}
+
+export interface AdminFilters {
+  status?: "candidate" | "published" | "rejected";
+  state?: string;
+  q?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export function adminList(filters: AdminFilters = {}): Promise<AdminPage> {
+  const pageSize = filters.pageSize ?? 20;
+  const params = new URLSearchParams({ status: filters.status ?? "candidate", limit: String(pageSize), offset: String(((filters.page ?? 1) - 1) * pageSize) });
+  if (filters.state) params.set("state", filters.state);
+  if (filters.q && filters.q.trim().length >= 2) params.set("q", filters.q.trim());
+  return request<AdminPage>(`/v1/admin/destinations?${params}`);
+}
+
+export function adminReview(id: string, body: ReviewBody): Promise<AdminDestination> {
+  return request<AdminDestination>(`/v1/admin/destinations/${id}/review`, { method: "POST", body: JSON.stringify(body) });
+}
+
+export function adminAddPrice(body: PriceBody): Promise<{ id: number }> {
+  return request<{ id: number }>("/v1/admin/price-observations", { method: "POST", body: JSON.stringify(body) });
+}
+
+export function adminCoverage(): Promise<CoverageRow[]> {
+  return request<CoverageRow[]>("/v1/admin/coverage");
+}
+
+export function adminPublish(): Promise<PublishResult> {
+  return request<PublishResult>("/v1/admin/catalog/publish", { method: "POST" });
 }

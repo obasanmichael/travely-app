@@ -7,6 +7,9 @@ import { PlacePage } from "./features/places/PlacePage";
 import { TripPage } from "./features/trips/TripPage";
 import { QuizPage } from "./features/quiz/QuizPage";
 import { SavedPage } from "./features/saved/SavedPage";
+import { AdminGuard } from "./features/admin/AdminGuard";
+import { PricesPage } from "./features/admin/PricesPage";
+import { ReviewPage } from "./features/admin/ReviewPage";
 import { ExplorePage } from "./features/explore/ExplorePage";
 import { TripsPage } from "./features/trips/TripsPage";
 import { Landing } from "./website/Landing";
@@ -28,6 +31,10 @@ export default function App() {
         <Route path="trips" element={<TripsPage />} />
         <Route path="explore" element={<ExplorePage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="admin" element={<AdminGuard />}>
+          <Route path="review" element={<ReviewPage />} />
+          <Route path="prices" element={<PricesPage />} />
+        </Route>
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
