@@ -86,6 +86,22 @@ async function request<T>(path: string, init: RequestInit = {}, withAuth = true)
   return (await response.json()) as T;
 }
 
+const FIELD_NAMES: Record<string, string> = {
+  days: "trip length",
+  budget: "budget",
+  travellers: "number of travellers",
+  origin_state: "starting state",
+  month: "month",
+};
+
+/** FastAPI sends 422 problems as a list; say which answer is wrong instead of a generic message. */
+function describeValidation(detail: unknown): string | undefined {
+  if (!Array.isArray(detail) || detail.length === 0) return undefined;
+  const field = detail[0]?.loc?.at?.(-1);
+  const name = typeof field === "string" ? FIELD_NAMES[field] : undefined;
+  return name ? `Check your ${name}: it isn't something we can plan for. Change it and try again.` : undefined;
+}
+
 async function send(path: string, init: RequestInit = {}, withAuth = true): Promise<Response> {
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json");
@@ -103,6 +119,7 @@ async function send(path: string, init: RequestInit = {}, withAuth = true): Prom
     try {
       const body = await response.json();
       detail = typeof body.detail === "string" ? body.detail : undefined;
+      if (response.status === 422) detail ??= describeValidation(body.detail);
     } catch {
       // Non-JSON error bodies fall back to the generic message.
     }
