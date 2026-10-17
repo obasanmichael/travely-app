@@ -4,30 +4,14 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/map-pin.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Tell Travely your budget, dates and what you enjoy. Get places that fit, with honest cost ranges and the best months to go." />
+    <meta name="theme-color" content="#14213D" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
-    <title>Travely | Explore Your Next Destination</title>
+    <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
+    <title>Travely: places that fit your budget</title>
   </head>
   <body>
-    <script>
-      (function () {
-        var p = location.pathname;
-        var dash =
-          p === "/recommendations" ||
-          p.indexOf("/survey") === 0 ||
-          p.indexOf("/explore") === 0 ||
-          p.indexOf("/settings") === 0;
-        if (!dash) return;
-        var t = localStorage.getItem("travely-theme");
-        if (
-          t === "dark" ||
-          (!t && window.matchMedia("(prefers-color-scheme: dark)").matches)
-        ) {
-          document.documentElement.classList.add("dark");
-        }
-      })();
-    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
