@@ -4,7 +4,7 @@ import { OverviewPage } from "./app/OverviewPage";
 import { SettingsPage } from "./app/SettingsPage";
 import { AuthPage } from "./features/auth/AuthPage";
 import { PlacePage } from "./features/places/PlacePage";
-import { ResultsPage } from "./features/results/ResultsPage";
+import { TripPage } from "./features/trips/TripPage";
 import { QuizPage } from "./features/quiz/QuizPage";
 import { SavedPage } from "./features/saved/SavedPage";
 import { SearchesPage } from "./features/searches/SearchesPage";
@@ -21,7 +21,7 @@ export default function App() {
       <Route path="/app" element={<AppShell />}>
         <Route index element={<OverviewPage />} />
         <Route path="plan" element={<QuizPage />} />
-        <Route path="results" element={<ResultsPage />} />
+        <Route path="trips/:runId" element={<TripPage />} />
         <Route path="places/:slug" element={<PlacePage />} />
         <Route path="saved" element={<SavedPage />} />
         <Route path="trips" element={<SearchesPage />} />

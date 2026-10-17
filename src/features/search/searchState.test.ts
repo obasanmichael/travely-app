@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_SEARCH, fromParams, toParams, toRequest, validate, type SearchState } from "./searchState";
+import { DEFAULT_SEARCH, fromParams, fromRequest, toParams, toRequest, validate, type SearchState } from "./searchState";
 
 const SEARCH: SearchState = {
   ...DEFAULT_SEARCH,
@@ -49,5 +49,14 @@ describe("searchState", () => {
       with_children: true,
       max_travel_hours: 6,
     });
+  });
+
+  it("rebuilds quiz answers from a stored request, ignoring junk", () => {
+    expect(fromRequest(toRequest(SEARCH) as unknown as Record<string, unknown>)).toEqual(SEARCH);
+    const state = fromRequest({ origin_state: "Lagos", budget: "lots", tier: "gold", interests: { hiking: "adore", food: "like" } });
+    expect(state.origin).toBe(DEFAULT_SEARCH.origin);
+    expect(state.budget).toBe(DEFAULT_SEARCH.budget);
+    expect(state.tier).toBe(DEFAULT_SEARCH.tier);
+    expect(state.interests).toEqual({ food: "like" });
   });
 });

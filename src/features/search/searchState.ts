@@ -132,3 +132,26 @@ export function toRequest(state: SearchState): RecommendationRequest {
 export function newSearchKey(): string {
   return crypto.randomUUID().replace(/-/g, "");
 }
+
+/** Rebuild the quiz answers from a stored trip's request, so "Edit trip" starts from what was asked. */
+export function fromRequest(input: Record<string, unknown>): SearchState {
+  const interests: Record<string, Level> = {};
+  for (const [slug, level] of Object.entries((input.interests as Record<string, unknown>) ?? {})) {
+    if (level === "love" || level === "like") interests[slug] = level;
+  }
+  const num = (value: unknown, fallback: number) => (typeof value === "number" && Number.isFinite(value) ? value : fallback);
+  const tier = input.tier as Tier;
+  const pace = input.pace as Pace;
+  return {
+    origin: typeof input.origin_state === "string" && /^NG-[A-Z]{2}$/.test(input.origin_state) ? input.origin_state : DEFAULT_SEARCH.origin,
+    budget: num(input.budget, DEFAULT_SEARCH.budget),
+    days: num(input.days, DEFAULT_SEARCH.days),
+    travellers: num(input.travellers, DEFAULT_SEARCH.travellers),
+    month: typeof input.month === "number" ? input.month : null,
+    tier: TIERS.includes(tier) ? tier : DEFAULT_SEARCH.tier,
+    interests,
+    pace: PACES.includes(pace) ? pace : DEFAULT_SEARCH.pace,
+    withChildren: input.with_children === true,
+    maxHours: typeof input.max_travel_hours === "number" ? input.max_travel_hours : null,
+  };
+}
