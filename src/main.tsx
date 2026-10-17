@@ -5,6 +5,7 @@ import { reactErrorHandler } from "@sentry/react";
 import "./instrument";
 import "./index.css";
 import App from "./App";
+import { ThemeProvider } from "./theme/ThemeProvider";
 import { AuthProvider } from "./features/auth/AuthProvider";
 import { SavedProvider } from "./features/saved/SavedProvider";
 import { initAppCheck } from "./firebase/appCheck";
@@ -17,12 +18,14 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement, {
   onRecoverableError: reactErrorHandler(),
 }).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <SavedProvider>
-          <App />
-        </SavedProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <SavedProvider>
+            <App />
+          </SavedProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   </React.StrictMode>
 );

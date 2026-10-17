@@ -5,10 +5,19 @@
     <link rel="icon" type="image/svg+xml" href="/map-pin.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Tell Travely your budget, dates and what you enjoy. Get places that fit, with honest cost ranges and the best months to go." />
-    <meta name="theme-color" content="#14213D" />
+    <meta name="theme-color" content="#0A0F1C" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("travely-theme");
+          var dark = t === "dark" || ((!t || t === "system") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.classList.add("dark");
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
     <title>Travely: places that fit your budget</title>
   </head>
   <body>
