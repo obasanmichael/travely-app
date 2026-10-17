@@ -123,6 +123,31 @@ describe("QuizPage", () => {
     expect(sessionStorage.getItem("travely-quiz-draft")).toBeNull();
   });
 
+  it("lets people type any trip length and any budget", async () => {
+    api.getRecommendations.mockResolvedValue(response({ run_id: "run-7" }));
+    renderQuiz();
+    const user = userEvent.setup();
+    await screen.findByText("Where are you starting from?");
+    await user.click(screen.getByRole("button", { name: "Osun" }));
+    await next(user);
+    await next(user);
+    const days = await screen.findByLabelText("Number of days");
+    await user.clear(days);
+    await user.type(days, "60");
+    expect(screen.getByText(/About 2 months/)).toBeInTheDocument();
+    await next(user);
+    await next(user);
+    const budget = await screen.findByLabelText("Total budget in naira, for everyone");
+    await user.clear(budget);
+    await user.type(budget, "12000000");
+    expect(budget).toHaveValue("12,000,000");
+    await user.click(screen.getByRole("button", { name: /Skip to review/ }));
+    expect(await screen.findByText("₦12,000,000 total")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Find my places/ }));
+    await waitFor(() => expect(api.getRecommendations).toHaveBeenCalled(), { timeout: 4000 });
+    expect(api.getRecommendations).toHaveBeenCalledWith(expect.objectContaining({ days: 60, budget: 12_000_000 }), expect.any(String));
+  });
+
   it("cycles an interest from love to like to off", async () => {
     renderQuiz();
     const user = userEvent.setup();

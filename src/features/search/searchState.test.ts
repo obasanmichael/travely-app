@@ -23,7 +23,7 @@ describe("searchState", () => {
 
   it("falls back to defaults for tampered values", () => {
     const { state, key } = fromParams(
-      new URLSearchParams("from=Lagos&budget=-5&days=99&tier=luxury&love=hiking:adore&k=bad key")
+      new URLSearchParams("from=Lagos&budget=-5&days=999&tier=luxury&love=hiking:adore&k=bad key")
     );
     expect(state.origin).toBe(DEFAULT_SEARCH.origin);
     expect(state.budget).toBe(DEFAULT_SEARCH.budget);

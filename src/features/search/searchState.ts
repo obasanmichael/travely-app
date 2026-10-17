@@ -32,7 +32,7 @@ export const DEFAULT_SEARCH: SearchState = {
 
 export const LIMITS = {
   budget: { min: 1_000, max: 1_000_000_000 },
-  days: { min: 1, max: 30 },
+  days: { min: 1, max: 365 },
   travellers: { min: 1, max: 20 },
   interests: 8,
 } as const;

@@ -64,6 +64,8 @@ function lengthLabel(days: number): string {
   if (days === 1) return "A day trip";
   if (days === 2 || days === 3) return "A short break";
   if (days === 7) return "A week";
+  if (days >= 60) return `About ${Math.round(days / 30)} months`;
+  if (days >= 28) return `${days} days, about a month`;
   if (days >= 14) return "A long trip";
   return `${days} days`;
 }
@@ -72,9 +74,12 @@ export function DaysStep({ state, update }: StepProps) {
   return (
     <div className="flex flex-col items-center gap-8">
       <Stepper value={state.days} min={LIMITS.days.min} max={LIMITS.days.max} onChange={(days) => update({ days })} label="days" />
-      <p className="m-0 text-lg text-muted">{lengthLabel(state.days)}</p>
+      <p className="m-0 text-lg text-muted">
+        {lengthLabel(state.days)}
+        <span className="block text-sm">Tap the number to type any length, up to a year.</span>
+      </p>
       <div className="flex flex-wrap justify-center gap-2" role="group" aria-label="Common lengths">
-        {[1, 2, 3, 5, 7, 14].map((d) => (
+        {[1, 2, 3, 5, 7, 14, 30, 60].map((d) => (
           <Choice key={d} selected={state.days === d} onSelect={() => update({ days: d })}>
             {d === 1 ? "Day trip" : `${d} days`}
           </Choice>
@@ -100,8 +105,22 @@ export function PeopleStep({ state, update }: StepProps) {
   );
 }
 
+// The slider is logarithmic so one drag covers a day trip and a two-month holiday; typing has no ceiling
+// below the API limit.
 const BUDGET_MIN = 10_000;
-const BUDGET_MAX = 3_000_000;
+const BUDGET_SLIDER_MAX = 100_000_000;
+const SLIDER_STEPS = 1000;
+
+function budgetToSlider(budget: number): number {
+  const clamped = Math.min(Math.max(budget, BUDGET_MIN), BUDGET_SLIDER_MAX);
+  return Math.round((Math.log(clamped / BUDGET_MIN) / Math.log(BUDGET_SLIDER_MAX / BUDGET_MIN)) * SLIDER_STEPS);
+}
+
+function sliderToBudget(position: number): number {
+  const raw = BUDGET_MIN * (BUDGET_SLIDER_MAX / BUDGET_MIN) ** (position / SLIDER_STEPS);
+  const step = raw < 1_000_000 ? 5_000 : raw < 10_000_000 ? 50_000 : 500_000;
+  return Math.max(BUDGET_MIN, Math.round(raw / step) * step);
+}
 
 export function BudgetStep({ state, update }: StepProps) {
   const [text, setText] = useState(state.budget ? state.budget.toLocaleString("en-NG") : "");
@@ -142,17 +161,17 @@ export function BudgetStep({ state, update }: StepProps) {
           size={Math.max(text.length, 4)}
           onChange={(e) => {
             const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
-            setBudget(digits ? Number(digits) : 0);
+            setBudget(digits ? Math.min(Number(digits), LIMITS.budget.max) : 0);
           }}
           className="w-auto bg-transparent text-center focus:outline-none"
         />
       </div>
       <Slider.Root
-        value={[Math.min(Math.max(state.budget, BUDGET_MIN), BUDGET_MAX)]}
-        min={BUDGET_MIN}
-        max={BUDGET_MAX}
-        step={5_000}
-        onValueChange={([v]) => setBudget(v)}
+        value={[budgetToSlider(state.budget)]}
+        min={0}
+        max={SLIDER_STEPS}
+        step={1}
+        onValueChange={([v]) => setBudget(sliderToBudget(v))}
         aria-label="Budget"
         className="relative flex h-6 w-full max-w-md touch-none select-none items-center"
       >
@@ -161,7 +180,8 @@ export function BudgetStep({ state, update }: StepProps) {
         </Slider.Track>
         <Slider.Thumb aria-label="Budget" className="block h-6 w-6 rounded-full border-2 border-primary bg-surface shadow-card focus:outline-none focus-visible:ring-4 focus-visible:ring-sun" />
       </Slider.Root>
-      <p className="m-0 min-h-12 text-center text-muted" aria-live="polite">
+      <p className="m-0 min-h-20 text-center text-muted" aria-live="polite">
+        <span className="mb-1 block text-sm">Slide, or type any amount.</span>
         {perPersonPerDay > 0 && (
           <>
             That's about <strong className="text-ink">{formatNaira(perPersonPerDay)}</strong> per person per day

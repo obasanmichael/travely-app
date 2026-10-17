@@ -1,8 +1,10 @@
 import { Minus, Plus } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "../../ui/cn";
 
 export function Stepper({ value, min, max, onChange, label }: { value: number; min: number; max: number; onChange: (v: number) => void; label: string }) {
+  const [text, setText] = useState(String(value));
+  useEffect(() => setText(String(value)), [value]);
   return (
     <div className="flex items-center justify-center gap-6" role="group" aria-label={label}>
       <button
@@ -14,9 +16,27 @@ export function Stepper({ value, min, max, onChange, label }: { value: number; m
       >
         <Minus className="h-5 w-5" aria-hidden="true" />
       </button>
-      <output aria-live="polite" className="w-24 text-center font-serif text-7xl tabular-nums text-ink">
-        {value}
-      </output>
+      <input
+        aria-label={`Number of ${label}`}
+        inputMode="numeric"
+        autoComplete="off"
+        value={text}
+        size={Math.max(text.length, 1)}
+        onChange={(e) => {
+          const digits = e.target.value.replace(/\D/g, "").slice(0, String(max).length);
+          setText(digits);
+          // Out-of-range or empty text waits for blur, so typing "1" on the way to "14" isn't rejected.
+          const typed = Number(digits);
+          if (digits && typed >= min && typed <= max) onChange(typed);
+        }}
+        onBlur={() => {
+          const typed = Number(text);
+          const settled = Math.min(Math.max(text ? typed : value, min), max);
+          setText(String(settled));
+          onChange(settled);
+        }}
+        className="min-w-24 max-w-[7ch] bg-transparent text-center font-serif text-7xl tabular-nums text-ink focus:outline-none focus-visible:underline"
+      />
       <button
         type="button"
         aria-label={`More ${label}`}
