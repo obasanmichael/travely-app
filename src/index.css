@@ -58,6 +58,14 @@
     from { transform: translateX(32px); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
   }
+  @keyframes acc-down {
+    from { height: 0; opacity: 0; }
+    to { height: var(--radix-accordion-content-height); opacity: 1; }
+  }
+  @keyframes acc-up {
+    from { height: var(--radix-accordion-content-height); opacity: 1; }
+    to { height: 0; opacity: 0; }
+  }
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }

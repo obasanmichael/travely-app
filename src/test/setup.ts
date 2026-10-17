@@ -22,3 +22,14 @@ window.matchMedia =
       dispatchEvent: () => false,
       onchange: null,
     }) as MediaQueryList);
+
+// jsdom has no IntersectionObserver (used by scroll-triggered animation).
+class StubIntersectionObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() {
+    return [];
+  }
+}
+window.IntersectionObserver = window.IntersectionObserver ?? (StubIntersectionObserver as unknown as typeof IntersectionObserver);

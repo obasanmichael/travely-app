@@ -13,6 +13,7 @@ export type Meta = components["schemas"]["MetaResponse"];
 export type Interest = Meta["interests"][number];
 export type Destination = components["schemas"]["DestinationOut"];
 export type RunSummary = components["schemas"]["RunSummary"];
+export type PublicSample = components["schemas"]["PublicSample"];
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -134,4 +135,8 @@ export function getRuns(): Promise<RunSummary[]> {
 
 export async function mergeGuest(anonymousToken: string): Promise<void> {
   await send("/v1/me/merge", { method: "POST", body: JSON.stringify({ anonymous_token: anonymousToken }) });
+}
+
+export function getSample(): Promise<PublicSample> {
+  return request<PublicSample>("/v1/public/sample", {}, false);
 }

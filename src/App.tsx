@@ -5,14 +5,14 @@ import { PlacePage } from "./features/places/PlacePage";
 import { ResultsPage } from "./features/results/ResultsPage";
 import { SavedPage } from "./features/saved/SavedPage";
 import { SearchesPage } from "./features/searches/SearchesPage";
-import { Home } from "./pages/Home";
+import { Landing } from "./website/Landing";
 import { NotFound } from "./pages/NotFound";
 
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<Landing />} />
       <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
         <Route path="/results" element={<ResultsPage />} />
         <Route path="/places/:slug" element={<PlacePage />} />
         <Route path="/saved" element={<SavedPage />} />

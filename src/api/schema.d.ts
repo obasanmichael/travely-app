@@ -126,6 +126,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/public/sample": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sample
+         * @description A real engine run for a fixed example trip, so the website's numbers are never invented.
+         */
+        get: operations["sample_v1_public_sample_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/recommendations": {
         parameters: {
             query?: never;
@@ -609,6 +629,24 @@ export interface components {
             /** Notes */
             notes?: string | null;
         };
+        /** PublicSample */
+        PublicSample: {
+            /** Origin */
+            origin: string;
+            /** Days */
+            days: number;
+            /** Travellers */
+            travellers: number;
+            /** Budget */
+            budget: number;
+            /** Month */
+            month: number;
+            pick: components["schemas"]["RecommendationOut"];
+            /** Places */
+            places: number;
+            /** States */
+            states: number;
+        };
         /** PublishResponse */
         PublishResponse: {
             /** Catalog Version */
@@ -1016,6 +1054,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MetaResponse"];
+                };
+            };
+        };
+    };
+    sample_v1_public_sample_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicSample"];
                 };
             };
         };
