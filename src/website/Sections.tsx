@@ -7,6 +7,7 @@ import { SeasonRibbon } from "../components/SeasonRibbon";
 import { PlaceCard } from "../features/places/PlaceCard";
 import { formatNaira } from "../lib/format";
 import { ButtonLink } from "../ui/Button";
+import { Logo } from "../ui/Logo";
 import { Reveal } from "../ui/Reveal";
 import { useCountUp } from "./useCountUp";
 
@@ -273,7 +274,7 @@ export function SiteFooter() {
     <footer className="border-t border-line bg-surface">
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-12 sm:px-8 md:flex-row md:items-start md:justify-between">
         <div>
-          <p className="m-0 font-serif text-2xl text-ink">travely</p>
+          <Logo />
           <p className="m-0 mt-2 max-w-[40ch] text-sm text-muted">Costs are estimates to help you plan, not quotes.</p>
         </div>
         <p className="m-0 max-w-[60ch] text-[13px] leading-relaxed text-muted">

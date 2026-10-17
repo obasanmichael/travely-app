@@ -1,6 +1,7 @@
 import * as Menu from "@radix-ui/react-dropdown-menu";
 import { LogIn, LogOut, Settings } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Logo } from "../ui/Logo";
 import { useAuth } from "../features/auth/authContext";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { ButtonLink } from "../ui/Button";
@@ -21,9 +22,7 @@ export function TopBar() {
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-4 border-b border-line bg-bg/80 px-4 backdrop-blur-xl sm:px-8">
       <div className="flex items-center gap-3">
-        <Link to="/app" className="font-serif text-2xl text-ink no-underline lg:hidden">
-          travely
-        </Link>
+        <Logo to="/app" size="sm" className="lg:hidden" />
         <h1 className="m-0 hidden text-lg font-bold text-ink lg:block">{titleFor(pathname)}</h1>
       </div>
       <div className="flex items-center gap-2">

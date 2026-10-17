@@ -1,5 +1,6 @@
 import { ChevronsLeft, ChevronsRight } from "lucide-react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { Logo } from "../ui/Logo";
 import { useAuth } from "../features/auth/authContext";
 import { useSaved } from "../features/saved/savedContext";
 import { cn } from "../ui/cn";
@@ -44,9 +45,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       )}
     >
       <div className={cn("flex h-16 items-center", collapsed ? "justify-center" : "px-5")}>
-        <Link to="/app" className="font-serif text-2xl text-ink no-underline">
-          {collapsed ? "t" : "travely"}
-        </Link>
+        <Logo to="/app" markOnly={collapsed} />
       </div>
       <nav aria-label="App" className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-2">
         {MAIN_NAV.map((item) => (

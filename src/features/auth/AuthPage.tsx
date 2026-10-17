@@ -5,6 +5,7 @@ import { SeasonRibbon } from "../../components/SeasonRibbon";
 import { monthName } from "../../lib/format";
 import { ThemeToggle } from "../../theme/ThemeToggle";
 import { Button } from "../../ui/Button";
+import { Logo } from "../../ui/Logo";
 import { Field } from "../../ui/Field";
 import { useFeatured } from "../places/useFeatured";
 import { useAuth } from "./authContext";
@@ -49,9 +50,7 @@ function PhotoPanel() {
       {place?.photo && <img src={place.photo.url} alt="" className="absolute inset-0 h-full w-full animate-kenburns object-cover" />}
       <div className="absolute inset-0 bg-gradient-to-t from-night via-night/30 to-night/50" />
       <div className="relative flex h-full flex-col justify-between p-10 text-white">
-        <Link to="/" className="font-serif text-3xl text-white no-underline">
-          travely
-        </Link>
+        <Logo tone="light" size="lg" />
         {place && (
           <div className="max-w-md">
             <p className="m-0 font-serif text-4xl leading-tight">Your next trip starts with a few questions.</p>
@@ -120,9 +119,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
       <PhotoPanel />
       <main className="relative flex flex-col px-5 py-6 sm:px-10">
         <div className="flex items-center justify-between">
-          <Link to="/" className="font-serif text-2xl text-ink no-underline lg:invisible">
-            travely
-          </Link>
+          <Logo className="lg:invisible" />
           <ThemeToggle />
         </div>
         <div className="mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-center py-10">
