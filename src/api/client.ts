@@ -15,6 +15,7 @@ export type Destination = components["schemas"]["DestinationOut"];
 export type RunSummary = components["schemas"]["RunSummary"];
 export type PublicSample = components["schemas"]["PublicSample"];
 export type RunDetail = components["schemas"]["RunDetail"];
+export type DestinationPage = components["schemas"]["api__v1__schemas__DestinationPage"];
 export type BudgetBand = components["schemas"]["BudgetBandResponse"];
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
@@ -149,4 +150,24 @@ export function getTrip(runId: string): Promise<RunDetail> {
 
 export function getBudgetBand(perPersonPerDay: number): Promise<BudgetBand> {
   return request<BudgetBand>(`/v1/meta/budget-band?per_person_per_day=${perPersonPerDay}`, {}, false);
+}
+
+export interface BrowseFilters {
+  q?: string;
+  state?: string;
+  interest?: string;
+  month?: number;
+  page?: number;
+  pageSize?: number;
+}
+
+export function browseDestinations(filters: BrowseFilters = {}): Promise<DestinationPage> {
+  const params = new URLSearchParams();
+  if (filters.q && filters.q.trim().length >= 2) params.set("q", filters.q.trim());
+  if (filters.state) params.set("state", filters.state);
+  if (filters.interest) params.set("interest", filters.interest);
+  if (filters.month) params.set("month", String(filters.month));
+  params.set("page", String(filters.page ?? 1));
+  params.set("page_size", String(filters.pageSize ?? 24));
+  return request<DestinationPage>(`/v1/destinations?${params}`, {}, false);
 }

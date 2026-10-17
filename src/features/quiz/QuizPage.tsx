@@ -126,6 +126,7 @@ export function QuizPage() {
           exit={{ opacity: 0, x: -offset }}
           transition={{ duration: reduce ? 0 : 0.25, ease: "easeOut" }}
           aria-live="polite"
+          className="min-h-[440px]"
         >
           {onReview ? (
             <Review state={state} meta={meta.meta} onEdit={go} problems={problems} />

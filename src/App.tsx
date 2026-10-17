@@ -7,7 +7,8 @@ import { PlacePage } from "./features/places/PlacePage";
 import { TripPage } from "./features/trips/TripPage";
 import { QuizPage } from "./features/quiz/QuizPage";
 import { SavedPage } from "./features/saved/SavedPage";
-import { SearchesPage } from "./features/searches/SearchesPage";
+import { ExplorePage } from "./features/explore/ExplorePage";
+import { TripsPage } from "./features/trips/TripsPage";
 import { Landing } from "./website/Landing";
 import { NotFound } from "./pages/NotFound";
 
@@ -24,7 +25,8 @@ export default function App() {
         <Route path="trips/:runId" element={<TripPage />} />
         <Route path="places/:slug" element={<PlacePage />} />
         <Route path="saved" element={<SavedPage />} />
-        <Route path="trips" element={<SearchesPage />} />
+        <Route path="trips" element={<TripsPage />} />
+        <Route path="explore" element={<ExplorePage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<NotFound />} />
