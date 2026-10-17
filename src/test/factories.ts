@@ -7,6 +7,7 @@ export function makeAuth(overrides: Partial<AuthValue> = {}): AuthValue {
     user: null,
     ready: true,
     isSignedIn: false,
+    isAdmin: false,
     signInWithGoogle: vi.fn().mockResolvedValue(undefined),
     signInWithEmail: vi.fn().mockResolvedValue(undefined),
     createAccount: vi.fn().mockResolvedValue(undefined),

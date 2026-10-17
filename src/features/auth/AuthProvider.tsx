@@ -42,12 +42,16 @@ function wrap(action: () => Promise<unknown>): Promise<void> {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(auth.currentUser);
   const [ready, setReady] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(
     () =>
       onAuthStateChanged(auth, (next) => {
         setUser(next);
         setReady(true);
+        // The admin claim lives on the ID token; the server re-checks it on every admin call.
+        if (!next || next.isAnonymous) setIsAdmin(false);
+        else next.getIdTokenResult().then((result) => setIsAdmin(result.claims.admin === true), () => setIsAdmin(false));
       }),
     []
   );
@@ -58,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       ready,
       isSignedIn: Boolean(user && !user.isAnonymous),
+      isAdmin,
       signInWithGoogle: () =>
         wrap(async () => {
           const current = auth.currentUser;
@@ -86,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       resetPassword: (email) => wrap(() => sendPasswordResetEmail(auth, email)),
       signOut: () => wrap(() => firebaseSignOut(auth)),
     };
-  }, [user, ready]);
+  }, [user, ready, isAdmin]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

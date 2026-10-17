@@ -22,14 +22,14 @@ function renderAt(url: string, saved = makeSaved()) {
     <Providers saved={saved}>
       <MemoryRouter initialEntries={[url]}>
         <Routes>
-          <Route path="/results" element={<ResultsPage />} />
+          <Route path="/app/results" element={<ResultsPage />} />
         </Routes>
       </MemoryRouter>
     </Providers>
   );
 }
 
-const URL = "/results?from=NG-LA&budget=150000&days=3&people=2&tier=mid&pace=balanced&month=8&k=abcdefgh12";
+const URL = "/app/results?from=NG-LA&budget=150000&days=3&people=2&tier=mid&pace=balanced&month=8&k=abcdefgh12";
 
 describe("ResultsPage", () => {
   beforeEach(() => {

@@ -87,7 +87,7 @@ export function ResultsPage() {
 
   const startSearch = (next: SearchState) => {
     setEditing(false);
-    navigate(`/results?${toParams(next, newSearchKey())}`);
+    navigate(`/app/results?${toParams(next, newSearchKey())}`);
     window.scrollTo({ top: 0 });
   };
 

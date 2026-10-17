@@ -5,6 +5,7 @@ export interface AuthValue {
   user: User | null;
   ready: boolean;
   isSignedIn: boolean;
+  isAdmin: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   createAccount: (email: string, password: string) => Promise<void>;
