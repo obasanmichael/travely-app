@@ -1,32 +1,31 @@
-export function formatCurrency(amount: number): string {
-  return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+export function monthName(month: number): string {
+  return MONTHS[month - 1] ?? "";
 }
 
-export function formatMatchScore(score: number): number {
-  return Math.round(score * 100);
+export function monthInitial(month: number): string {
+  return monthName(month).charAt(0);
 }
 
-export function parseActivities(activities: string): string[] {
-  return activities
-    .split(",")
-    .map((a) => a.trim())
-    .filter(Boolean);
+export function formatNaira(amount: number): string {
+  return `₦${Math.round(amount).toLocaleString("en-NG")}`;
 }
 
-export function formatRunDate(value: unknown): string {
-  if (!value) return "Unknown date";
-  if (typeof value === "object" && value !== null && "toDate" in value) {
-    const date = (value as { toDate: () => Date }).toDate();
-    return date.toLocaleString(undefined, {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
+/** ₦45k / ₦1.2m: for tight spaces like the cost meter. */
+export function formatNairaShort(amount: number): string {
+  if (amount >= 1_000_000) {
+    return `₦${(amount / 1_000_000).toFixed(amount >= 10_000_000 ? 0 : 1).replace(/\.0$/, "")}m`;
   }
-  if (value instanceof Date) {
-    return value.toLocaleString(undefined, {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
-  }
-  return String(value);
+  if (amount >= 1_000) return `₦${Math.round(amount / 1_000)}k`;
+  return formatNaira(amount);
+}
+
+export function formatHours(hours: number): string {
+  if (hours < 1) return "under an hour";
+  const rounded = Math.round(hours);
+  return `${rounded} hr${rounded === 1 ? "" : "s"}`;
 }

@@ -1,107 +1,60 @@
-import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-  useLocation,
-} from "react-router-dom";
-import Dashboard from "./components/Dashboard/Dashboard";
-import QuizForm from "./components/Quiz/QuizForm";
-import Navbar from "./components/Layout/Navbar";
-import Footer from "./components/Layout/Footer";
-import Home from "./pages/Home";
-import Auth from "./pages/Auth";
-import toast, { Toaster } from "react-hot-toast";
-import DashboardLayout from "./components/Dashboard/DashboardLayout";
-import { isDashboardPath } from "./context/ThemeContext";
-import { useAuth } from "./context/AuthContext";
-import HistoryPage from "./components/Dashboard/HistoryPage";
-import HistoryDetailPage from "./components/Dashboard/HistoryDetailPage";
-import SearchPage from "./components/Dashboard/SearchPage";
-import SettingsPage from "./components/Dashboard/Settings";
+import { Suspense, lazy } from "react";
+import { Route, Routes } from "react-router-dom";
+import { Skeleton } from "./ui/Skeleton";
+import { Landing } from "./website/Landing";
 
-const AppContent: React.FC = () => {
-  const { user, loading, logout } = useAuth();
-  const location = useLocation();
-  const isAuthenticated = !!user;
-  const isHome = location.pathname === "/";
-  const isAuthPage = location.pathname === "/auth";
-  const isDashboard = isDashboardPath(location.pathname);
-  const isAuthOrDashboardPage = isAuthPage || isDashboard;
+// Everything past the landing page loads on demand, so first-time visitors download only the website.
+const lazyNamed = <T extends Record<string, React.ComponentType>>(load: () => Promise<T>, name: keyof T) =>
+  lazy(() => load().then((module) => ({ default: module[name] })));
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch {
-      toast.error("Error signing out");
-    }
-  };
+const AuthPage = lazy(() => import("./features/auth/AuthPage").then((m) => ({ default: m.AuthPage as React.ComponentType<{ mode: "signin" | "signup" | "reset" }> })));
+const AppShell = lazyNamed(() => import("./app/AppShell"), "AppShell");
+const OverviewPage = lazyNamed(() => import("./app/OverviewPage"), "OverviewPage");
+const QuizPage = lazyNamed(() => import("./features/quiz/QuizPage"), "QuizPage");
+const TripPage = lazyNamed(() => import("./features/trips/TripPage"), "TripPage");
+const TripsPage = lazyNamed(() => import("./features/trips/TripsPage"), "TripsPage");
+const ExplorePage = lazyNamed(() => import("./features/explore/ExplorePage"), "ExplorePage");
+const PlacePage = lazyNamed(() => import("./features/places/PlacePage"), "PlacePage");
+const SavedPage = lazyNamed(() => import("./features/saved/SavedPage"), "SavedPage");
+const SettingsPage = lazyNamed(() => import("./features/settings/SettingsPage"), "SettingsPage");
+const AdminGuard = lazyNamed(() => import("./features/admin/AdminGuard"), "AdminGuard");
+const ReviewPage = lazyNamed(() => import("./features/admin/ReviewPage"), "ReviewPage");
+const PricesPage = lazyNamed(() => import("./features/admin/PricesPage"), "PricesPage");
+const NotFound = lazyNamed(() => import("./pages/NotFound"), "NotFound");
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-surface-base">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-travel-600 dark:border-travel-400"></div>
-      </div>
-    );
-  }
-
+function Loading() {
   return (
-    <div className="flex flex-col min-h-screen bg-surface-base text-primary">
-      <div className="flex justify-end lg:justify-center">
-        <Toaster reverseOrder={false} />
-      </div>
-      {!isAuthOrDashboardPage && (
-        <Navbar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
-      )}
-
-      <main
-        className={`flex-grow ${
-          isAuthOrDashboardPage ? "" : isHome ? "" : "pt-20"
-        }`}
-      >
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/auth"
-            element={
-              isAuthenticated ? (
-                <Navigate to="/recommendations" />
-              ) : (
-                <Auth />
-              )
-            }
-          />
-          <Route
-            element={
-              isAuthenticated ? (
-                <DashboardLayout onLogout={handleLogout} />
-              ) : (
-                <Navigate to="/auth" />
-              )
-            }
-          >
-            <Route path="/recommendations" element={<Dashboard />} />
-            <Route path="survey" element={<QuizForm />} />
-            <Route path="explore" element={<SearchPage />} />
-            <Route path="history" element={<HistoryPage />} />
-            <Route path="history/:runId" element={<HistoryDetailPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-          </Route>
-        </Routes>
-      </main>
-
-      {!isAuthOrDashboardPage && <Footer />}
+    <div aria-busy="true" role="status" className="flex min-h-dvh items-start justify-center bg-bg p-10">
+      <span className="sr-only">Loading</span>
+      <Skeleton className="h-8 w-48" />
     </div>
   );
-};
+}
 
-const App: React.FC = () => {
+export default function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <Suspense fallback={<Loading />}>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/signin" element={<AuthPage mode="signin" />} />
+        <Route path="/signup" element={<AuthPage mode="signup" />} />
+        <Route path="/reset" element={<AuthPage mode="reset" />} />
+        <Route path="/app" element={<AppShell />}>
+          <Route index element={<OverviewPage />} />
+          <Route path="plan" element={<QuizPage />} />
+          <Route path="trips" element={<TripsPage />} />
+          <Route path="trips/:runId" element={<TripPage />} />
+          <Route path="explore" element={<ExplorePage />} />
+          <Route path="places/:slug" element={<PlacePage />} />
+          <Route path="saved" element={<SavedPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="admin" element={<AdminGuard />}>
+            <Route path="review" element={<ReviewPage />} />
+            <Route path="prices" element={<PricesPage />} />
+          </Route>
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
-};
-
-export default App;
+}

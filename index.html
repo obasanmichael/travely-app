@@ -2,32 +2,25 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/map-pin.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
-    <title>Travely | Explore Your Next Destination</title>
-  </head>
-  <body>
+    <meta name="description" content="Tell Travely your budget, dates and what you enjoy. Get places that fit, with honest cost ranges and the best months to go." />
+    <meta name="theme-color" content="#0A0F1C" />
     <script>
       (function () {
-        var p = location.pathname;
-        var dash =
-          p === "/recommendations" ||
-          p.indexOf("/survey") === 0 ||
-          p.indexOf("/explore") === 0 ||
-          p.indexOf("/settings") === 0;
-        if (!dash) return;
-        var t = localStorage.getItem("travely-theme");
-        if (
-          t === "dark" ||
-          (!t && window.matchMedia("(prefers-color-scheme: dark)").matches)
-        ) {
-          document.documentElement.classList.add("dark");
-        }
+        try {
+          var t = localStorage.getItem("travely-theme");
+          var dark = t === "dark" || ((!t || t === "system") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.classList.add("dark");
+        } catch (e) {}
       })();
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <title>Travely: places that fit your budget</title>
+  </head>
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
