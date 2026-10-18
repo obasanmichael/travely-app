@@ -1,0 +1,27 @@
+name: travely-backend
+# The whole app: web on :8080, API on :8000, Postgres and Redis.
+#   docker compose --env-file .env.local -f docker-compose.full.yml up --build
+# Needs the backend repo checked out next to this one (../travely-backend).
+include:
+  - path: ../travely-backend/docker-compose.yml
+    # The backend's local .env isn't valid compose syntax; its services get their settings from the compose file.
+    env_file: /dev/null
+
+services:
+  web:
+    build:
+      context: .
+      args:
+        VITE_FIREBASE_API_KEY: ${VITE_FIREBASE_API_KEY:?set it in .env.local}
+        VITE_FIREBASE_AUTH_DOMAIN: ${VITE_FIREBASE_AUTH_DOMAIN:?set it in .env.local}
+        VITE_FIREBASE_PROJECT_ID: ${VITE_FIREBASE_PROJECT_ID:?set it in .env.local}
+        VITE_FIREBASE_APP_ID: ${VITE_FIREBASE_APP_ID:?set it in .env.local}
+        VITE_FIREBASE_STORAGE_BUCKET: ${VITE_FIREBASE_STORAGE_BUCKET:-}
+        VITE_FIREBASE_MESSAGING_SENDER_ID: ${VITE_FIREBASE_MESSAGING_SENDER_ID:-}
+        # The browser, not the container, calls the API, so this is the host's port.
+        VITE_API_BASE_URL: http://localhost:8000
+        VITE_APP_ENV: development
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api

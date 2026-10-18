@@ -52,3 +52,14 @@ export default tseslint.config({
   },
 })
 ```
+
+
+## Run everything in Docker
+
+With `../travely-backend` checked out next to this repo and your Firebase web config in `.env.local`:
+
+```bash
+docker compose --env-file .env.local -f docker-compose.full.yml up --build
+```
+
+The web app is at http://localhost:8080 and the API at http://localhost:8000. `docker/nginx.conf` serves the built site, falls back to `index.html` for app routes and caches hashed assets for a year.
